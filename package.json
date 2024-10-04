@@ -1,0 +1,45 @@
+{
+  "name": "webb-graphql",
+  "version": "1.0.0",
+  "description": "A collection of GraphQL projects for Webb's protocols",
+  "private": true,
+  "license": "Apache-2.0",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "format": "prettier --write .",
+    "format-check": "prettier --check .",
+    "lint": "nx run-many --all --target=lint",
+    "build": "nx run-many --all --target=build",
+    "lint:tangle-subql": "nx lint tangle-subql",
+    "build:tangle-subql": "nx build tangle-subql",
+    "dev:tangle-subql": "nx dev tangle-subql",
+    "stop:tangle-subql": "nx stop tangle-subql",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*": "prettier --list-different",
+    "*.{js,ts}": "eslint"
+  },
+  "resolutions": {
+    "ipfs-unixfs": "6.0.6"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.5.0",
+    "@commitlint/config-conventional": "^19.5.0",
+    "@eslint/eslintrc": "^2.1.1",
+    "@nx/eslint": "19.8.3",
+    "@nx/eslint-plugin": "19.8.3",
+    "@typescript-eslint/eslint-plugin": "^8.8.0",
+    "@typescript-eslint/parser": "^8.8.0",
+    "eslint": "^9.11.1",
+    "eslint-config-prettier": "^9.0.0",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
+    "nx": "19.8.3",
+    "prettier": "^3.3.3",
+    "typescript-eslint": "^8.0.0"
+  },
+  "dependencies": {}
+}

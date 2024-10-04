@@ -1,0 +1,6 @@
+yarn lint
+
+if [ $? -ne 0 ]; then
+  echo "Lint check failed, aborting push."
+  exit 1
+fi
