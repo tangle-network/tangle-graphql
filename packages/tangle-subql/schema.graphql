@@ -2,50 +2,153 @@
 # Add the `@index` or `@index(unique: true)` annotation after any non-key field
 # https://academy.subquery.network/build/graphql.html#indexing-by-non-primary-key-field
 
-type Transfer @entity {
+"""
+Represents an Operator in the system.
+"""
+type Operator @entity {
   """
-  id field is always required and must look like this
+  Operator's account ID, serves as the unique identifier.
   """
   id: ID!
+
   """
-  Amount that is transferred
+  Current status of the Operator (ACTIVE, LEAVING, or OFFLINE).
   """
-  amount: BigInt!
+  currentStatus: OperatorStatus!
+
   """
-  The block height of the transfer
+  The current stake amount of the Operator.
   """
-  blockNumber: Int!
+  currentStake: BigInt!
+
   """
-  The date of the transfer
+  The amount of tokens scheduled to be unstaked by the Operator.
+  This represents the pending unstake amount that can be released after the unbonding period.
   """
-  date: Date
+  scheduledUnstakeAmount: BigInt
+
   """
-  The account that transfers are made from
+  History of status changes for the Operator.
   """
-  from: Account!
+  statusHistory: [OperatorStatusChange!]! @derivedFrom(field: "operator")
+
   """
-  The account that transfers are made to
+  History of bond changes for the Operator.
   """
-  to: Account!
+  bondChanges: [OperatorBondChange!]! @derivedFrom(field: "operator")
+
+  """
+  The block number when the Operator joined the network.
+  """
+  joinedAt: Int!
+
+  """
+  The block number of the last update to the Operator's information.
+  """
+  lastUpdateAt: Int!
+
+  """
+  List of delegations made to this Operator.
+  """
+  delegations: [Delegation!] @derivedFrom(field: "operator")
 }
 
-type Account @entity {
+"""
+Represents a change in the status of an Operator in the network.
+"""
+type OperatorStatusChange @entity {
   """
-  id field is always required and must look like this
+  Unique identifier for the status change. Composite key: operator ID + block number
   """
   id: ID!
+
   """
-  The public key of this account
+  The Operator whose status has changed.
   """
-  publicKey: String!
+  operator: Operator!
+
   """
-  The first block on which we see a transfer involving this account
+  The new status of the Operator.
   """
-  firstTransferBlock: Int
+  status: OperatorStatus!
+
   """
-  The most recent block on which we see a transfer involving this account
+  The block number at which the status change occurred.
   """
-  lastTransferBlock: Int
-  sentTransfers: [Transfer] @derivedFrom(field: "from") # These are virtual properties to help us navigate to the correct foreign key of Transfer
-  recievedTransfers: [Transfer] @derivedFrom(field: "to") # These are virtual properties to help us navigate to the correct foreign key of Transfer
+  blockNumber: Int!
+}
+
+"""
+Enum representing the current status of an Operator in the network.
+"""
+enum OperatorStatus {
+  """
+  The Operator is actively participating in the network.
+  """
+  ACTIVE
+
+  """
+  The Operator has initiated the process to leave the network but is still participating.
+  """
+  LEAVING
+
+  """
+  The Operator is not currently participating in the network.
+  """
+  OFFLINE
+}
+
+"""
+Represents a change in the bond amount of an Operator in the network.
+"""
+type OperatorBondChange @entity {
+  """
+  Unique identifier for the bond change. Composite key: operator ID + block number
+  """
+  id: ID!
+
+  """
+  The Operator whose bond amount has changed.
+  """
+  operator: Operator!
+
+  """
+  The block number at which the bond change occurred.
+  """
+  blockNumber: Int!
+
+  """
+  The amount of the bond change.
+  """
+  amount: BigInt!
+
+  """
+  The type of action that caused the bond change.
+  """
+  action: BondChangeAction!
+}
+
+"""
+Enum representing the different types of bond change actions for an Operator.
+"""
+enum BondChangeAction {
+  """
+  The Operator has increased their bond amount.
+  """
+  INCREASE
+
+  """
+  The Operator has scheduled a decrease in their bond amount.
+  """
+  DECREASE_SCHEDULED
+
+  """
+  The scheduled decrease in the Operator's bond amount has been executed.
+  """
+  DECREASE_EXECUTED
+
+  """
+  The scheduled decrease in the Operator's bond amount has been cancelled.
+  """
+  DECREASE_CANCELLED
 }
