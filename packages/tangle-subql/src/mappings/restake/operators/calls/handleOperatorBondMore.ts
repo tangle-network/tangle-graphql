@@ -1,6 +1,5 @@
 import { u128 } from '@polkadot/types';
 import { SubstrateExtrinsic } from '@subql/types';
-import '@webb-tools/tangle-substrate-types';
 import assert from 'assert';
 import {
   BondChangeAction,

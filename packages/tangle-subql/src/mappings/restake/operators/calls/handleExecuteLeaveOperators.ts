@@ -1,5 +1,3 @@
-import '@webb-tools/tangle-substrate-types';
-
 import { SubstrateExtrinsic } from '@subql/types';
 import assert from 'assert';
 import {

@@ -26,7 +26,8 @@
   "author": "Tangle Developers",
   "license": "MIT",
   "devDependencies": {
-    "@polkadot/api": "^14.0.1",
+    "@polkadot/api": "^13.2.1",
+    "@polkadot/types": "^13.2.1",
     "@subql/cli": "latest",
     "@subql/common-substrate": "latest",
     "@subql/testing": "latest",

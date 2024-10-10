@@ -1,5 +1,4 @@
 import { SubstrateExtrinsic } from '@subql/types';
-import '@webb-tools/tangle-substrate-types';
 import assert from 'assert';
 import { Operator, OperatorStatus } from 'tangle-subql/types';
 import createOperatorStatusChange from 'tangle-subql/utils/createOperatorStatusChange';
