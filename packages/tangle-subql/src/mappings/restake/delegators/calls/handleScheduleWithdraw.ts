@@ -19,6 +19,8 @@ export default async function handleScheduleWithdraw(
   const delegator = await Delegator.get(signer);
   assert(delegator, `Delegator with ID ${signer} not found`);
 
+  delegator.lastUpdateAt = blockNumber;
+
   const depositId = `${delegator.id}-${assetId.toString()}`;
   const deposit = await Deposit.get(depositId);
   assert(deposit, `Deposit with ID ${depositId} not found`);
@@ -57,5 +59,10 @@ export default async function handleScheduleWithdraw(
   deposit.withdrawRequestId = request.id;
 
   // Save all entities
-  await Promise.all([request.save(), requestHistory.save(), deposit.save()]);
+  await Promise.all([
+    delegator.save(),
+    request.save(),
+    requestHistory.save(),
+    deposit.save(),
+  ]);
 }
