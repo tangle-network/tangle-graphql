@@ -11,7 +11,15 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "packages/tangle-subql",
-        "command": "subql codegen && subql build && docker-compose pull && docker-compose up --remove-orphans"
+        "commands": [
+          "docker-compose down -v",
+          "yarn run clean",
+          "subql codegen",
+          "subql build",
+          "docker-compose pull",
+          "docker-compose up --remove-orphans"
+        ],
+        "parallel": false
       }
     },
     "stop": {
