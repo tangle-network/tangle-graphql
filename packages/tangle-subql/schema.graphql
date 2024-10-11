@@ -163,16 +163,6 @@ type Delegator @entity {
   id: ID!
 
   """
-  Current status of the Delegator (ACTIVE or INACTIVE).
-  """
-  currentStatus: DelegatorStatus!
-
-  """
-  History of status changes for the Delegator.
-  """
-  statusHistory: [DelegatorStatusChange!]! @derivedFrom(field: "delegator")
-
-  """
   List of deposits made by the Delegator.
   """
   deposits: [Deposit!]! @derivedFrom(field: "delegator")
@@ -201,39 +191,6 @@ type Delegator @entity {
   The block number of the last update to the Delegator's information.
   """
   lastUpdateAt: Int!
-}
-
-"""
-Enum representing the current status of a Delegator in the network.
-"""
-enum DelegatorStatus {
-  ACTIVE
-  INACTIVE
-}
-
-"""
-Represents a change in the status of a Delegator in the network.
-"""
-type DelegatorStatusChange @entity {
-  """
-  Unique identifier for the status change. Composite key: delegator ID + block number
-  """
-  id: ID!
-
-  """
-  The Delegator whose status has changed.
-  """
-  delegator: Delegator!
-
-  """
-  The new status of the Delegator.
-  """
-  status: DelegatorStatus!
-
-  """
-  The block number at which the status change occurred.
-  """
-  blockNumber: Int!
 }
 
 """
