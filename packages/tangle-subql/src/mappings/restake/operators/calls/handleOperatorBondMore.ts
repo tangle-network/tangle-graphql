@@ -5,8 +5,8 @@ import {
   BondChangeAction,
   Operator,
   OperatorBondChange,
-} from 'tangle-subql/types';
-import getExtrinsicInfo from 'tangle-subql/utils/getExtrinsicInfo';
+} from '../../../../types';
+import getExtrinsicInfo from '../../../../utils/getExtrinsicInfo';
 
 export default async function handleOperatorBondMore(
   extrinsic: SubstrateExtrinsic<[additionalBond: u128]>,

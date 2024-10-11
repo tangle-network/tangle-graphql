@@ -1,7 +1,7 @@
 import { u128 } from '@polkadot/types';
 import { SubstrateExtrinsic } from '@subql/types';
-import { Delegator, Deposit, DepositHistory } from 'tangle-subql/types';
-import getExtrinsicInfo from 'tangle-subql/utils/getExtrinsicInfo';
+import { Delegator, Deposit, DepositHistory } from '../../../../types';
+import getExtrinsicInfo from '../../../../utils/getExtrinsicInfo';
 
 export default async function handleDeposit(
   extrinsic: SubstrateExtrinsic<[assetId: u128, amount: u128]>,

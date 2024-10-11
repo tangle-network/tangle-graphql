@@ -1,7 +1,7 @@
 import { SubstrateExtrinsic } from '@subql/types';
 import assert from 'assert';
-import { Delegator, WithdrawRequest } from 'tangle-subql/types';
-import getExtrinsicInfo from 'tangle-subql/utils/getExtrinsicInfo';
+import { Delegator, WithdrawRequest } from '../../../../types';
+import getExtrinsicInfo from '../../../../utils/getExtrinsicInfo';
 
 export default async function handleExecuteUnstake(
   extrinsic: SubstrateExtrinsic,

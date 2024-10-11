@@ -5,9 +5,9 @@ import {
   Operator,
   OperatorBondChange,
   OperatorStatus,
-} from 'tangle-subql/types';
-import createOperatorStatusChange from 'tangle-subql/utils/createOperatorStatusChange';
-import getExtrinsicInfo from 'tangle-subql/utils/getExtrinsicInfo';
+} from '../../../../types';
+import createOperatorStatusChange from '../../../../utils/createOperatorStatusChange';
+import getExtrinsicInfo from '../../../../utils/getExtrinsicInfo';
 
 export default async function handleExecuteLeaveOperators(
   extrinsic: SubstrateExtrinsic,

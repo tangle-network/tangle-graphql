@@ -10,10 +10,7 @@
     "outDir": "dist",
     "target": "es2020",
     "strict": true,
-    "skipLibCheck": true,
-    "paths": {
-      "tangle-subql/*": ["./src/*"]
-    }
+    "skipLibCheck": true
   },
   "include": [
     "src/**/*",

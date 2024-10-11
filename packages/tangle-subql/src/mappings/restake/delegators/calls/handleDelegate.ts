@@ -7,8 +7,8 @@ import {
   DelegationHistory,
   Delegator,
   Operator,
-} from 'tangle-subql/types';
-import getExtrinsicInfo from 'tangle-subql/utils/getExtrinsicInfo';
+} from '../../../../types';
+import getExtrinsicInfo from '../../../../utils/getExtrinsicInfo';
 
 export default async function handleDelegate(
   extrinsic: SubstrateExtrinsic<

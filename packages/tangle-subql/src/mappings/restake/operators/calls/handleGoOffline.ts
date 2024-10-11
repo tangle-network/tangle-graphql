@@ -1,8 +1,8 @@
 import { SubstrateExtrinsic } from '@subql/types';
 import assert from 'assert';
-import { Operator, OperatorStatus } from 'tangle-subql/types';
-import createOperatorStatusChange from 'tangle-subql/utils/createOperatorStatusChange';
-import getExtrinsicInfo from 'tangle-subql/utils/getExtrinsicInfo';
+import { Operator, OperatorStatus } from '../../../../types';
+import createOperatorStatusChange from '../../../../utils/createOperatorStatusChange';
+import getExtrinsicInfo from '../../../../utils/getExtrinsicInfo';
 
 export default async function handleGoOffline(extrinsic: SubstrateExtrinsic) {
   const { signer, blockNumber } = getExtrinsicInfo(extrinsic);

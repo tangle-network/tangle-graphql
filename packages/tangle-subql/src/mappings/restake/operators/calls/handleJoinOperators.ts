@@ -6,9 +6,9 @@ import {
   Operator,
   OperatorBondChange,
   OperatorStatus,
-} from 'tangle-subql/types';
-import createOperatorStatusChange from 'tangle-subql/utils/createOperatorStatusChange';
-import getExtrinsicInfo from 'tangle-subql/utils/getExtrinsicInfo';
+} from '../../../../types';
+import createOperatorStatusChange from '../../../../utils/createOperatorStatusChange';
+import getExtrinsicInfo from '../../../../utils/getExtrinsicInfo';
 
 export default async function handleJoinOperators(
   extrinsic: SubstrateExtrinsic<[bondAmount: u128]>,
@@ -32,10 +32,6 @@ function extractExtrinsicData(
   const [bondAmount] = extrinsic.extrinsic.args;
 
   assert(signer, 'Signer is missing for JoinOperators extrinsic');
-  assert(
-    bondAmount instanceof u128,
-    '`bondAmount` must be an instance of u128',
-  );
 
   return { signer, bondAmount, blockNumber };
 }

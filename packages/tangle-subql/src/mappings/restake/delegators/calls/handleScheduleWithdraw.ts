@@ -7,8 +7,8 @@ import {
   WithdrawRequest,
   WithdrawRequestHistory,
   WithdrawRequestStatus,
-} from 'tangle-subql/types';
-import getExtrinsicInfo from 'tangle-subql/utils/getExtrinsicInfo';
+} from '../../../../types';
+import getExtrinsicInfo from '../../../../utils/getExtrinsicInfo';
 
 export default async function handleScheduleWithdraw(
   extrinsic: SubstrateExtrinsic<[assetId: u128, amount: u128]>,
