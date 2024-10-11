@@ -152,3 +152,426 @@ enum BondChangeAction {
   """
   DECREASE_CANCELLED
 }
+
+"""
+Represents a Delegator in the system.
+"""
+type Delegator @entity {
+  """
+  Delegator's account ID, serves as the unique identifier.
+  """
+  id: ID!
+
+  """
+  Current status of the Delegator (ACTIVE or INACTIVE).
+  """
+  currentStatus: DelegatorStatus!
+
+  """
+  History of status changes for the Delegator.
+  """
+  statusHistory: [DelegatorStatusChange!]! @derivedFrom(field: "delegator")
+
+  """
+  List of deposits made by the Delegator.
+  """
+  deposits: [Deposit!]! @derivedFrom(field: "delegator")
+
+  """
+  List of delegations made by the Delegator.
+  """
+  delegations: [Delegation!]! @derivedFrom(field: "delegator")
+
+  """
+  List of unstake requests made by this Delegator.
+  """
+  unstakeRequests: [UnstakeRequest!]! @derivedFrom(field: "delegator")
+
+  """
+  List of withdraw requests made by this Delegator.
+  """
+  withdrawRequests: [WithdrawRequest!]! @derivedFrom(field: "delegator")
+
+  """
+  The block number when the Delegator first interacted with the system.
+  """
+  joinedAt: Int!
+
+  """
+  The block number of the last update to the Delegator's information.
+  """
+  lastUpdateAt: Int!
+}
+
+"""
+Enum representing the current status of a Delegator in the network.
+"""
+enum DelegatorStatus {
+  ACTIVE
+  INACTIVE
+}
+
+"""
+Represents a change in the status of a Delegator in the network.
+"""
+type DelegatorStatusChange @entity {
+  """
+  Unique identifier for the status change. Composite key: delegator ID + block number
+  """
+  id: ID!
+
+  """
+  The Delegator whose status has changed.
+  """
+  delegator: Delegator!
+
+  """
+  The new status of the Delegator.
+  """
+  status: DelegatorStatus!
+
+  """
+  The block number at which the status change occurred.
+  """
+  blockNumber: Int!
+}
+
+"""
+Represents a deposit made by a Delegator for a specific asset in the system.
+"""
+type Deposit @entity {
+  """
+  Unique identifier for the deposit. Composite key: delegator ID + asset ID
+  """
+  id: ID!
+
+  """
+  The Delegator who made the deposit.
+  """
+  delegator: Delegator!
+
+  """
+  The associated withdraw request for this deposit, if any.
+  """
+  withdrawRequest: WithdrawRequest
+
+  """
+  Indicates whether there is an active withdraw request for this deposit.
+  """
+  hasActiveWithdrawRequest: Boolean!
+
+  """
+  The asset ID of the deposited tokens.
+  """
+  assetId: BigInt!
+
+  """
+  The total amount of tokens deposited by the Delegator for this asset.
+  """
+  totalAmount: BigInt!
+
+  """
+  History of deposit transactions for this Delegator and asset.
+  """
+  history: [DepositHistory!]! @derivedFrom(field: "deposit")
+}
+
+"""
+Represents a history entry for a deposit made by a Delegator.
+"""
+type DepositHistory @entity {
+  """
+  Unique identifier for the deposit history entry. Composite key: deposit ID + block number
+  """
+  id: ID!
+
+  """
+  The deposit this history entry is associated with.
+  """
+  deposit: Deposit!
+
+  """
+  The amount of tokens deposited in this transaction.
+  """
+  amount: BigInt!
+
+  """
+  The block number at which this deposit transaction occurred.
+  """
+  blockNumber: Int!
+}
+
+"""
+Represents a delegation made by a Delegator to an Operator for a specific asset.
+"""
+type Delegation @entity {
+  """
+  Unique identifier for the delegation. Composite key: delegator ID + operator ID + asset ID
+  """
+  id: ID!
+
+  """
+  The Delegator who made the delegation.
+  """
+  delegator: Delegator!
+
+  """
+  The Operator to whom the delegation was made.
+  """
+  operator: Operator!
+
+  """
+  The associated unstake request for this delegation, if any.
+  """
+  unstakeRequest: UnstakeRequest
+
+  """
+  Indicates whether this delegation has an active unstake request.
+  """
+  hasActiveUnstakeRequest: Boolean!
+
+  """
+  The asset ID of the delegated tokens.
+  """
+  assetId: BigInt!
+
+  """
+  The total amount of tokens delegated.
+  """
+  totalAmount: BigInt!
+
+  """
+  History of changes to this delegation.
+  """
+  history: [DelegationHistory!]! @derivedFrom(field: "delegation")
+}
+
+"""
+Represents a history entry for a delegation made by a Delegator to an Operator.
+"""
+type DelegationHistory @entity {
+  """
+  Unique identifier for the delegation history entry. Composite key: delegation ID + block number
+  """
+  id: ID!
+
+  """
+  The delegation this history entry is associated with.
+  """
+  delegation: Delegation!
+
+  """
+  The amount of tokens delegated in this transaction.
+  """
+  amount: BigInt!
+
+  """
+  The block number at which this delegation transaction occurred.
+  """
+  blockNumber: Int!
+}
+
+"""
+Represents an unstake request made by a Delegator.
+"""
+type UnstakeRequest @entity {
+  """
+  Unique identifier for the unstake request. Composite key: delegator ID + operator ID + asset ID
+  """
+  id: ID!
+
+  """
+  The Delegator who made the unstake request.
+  """
+  delegator: Delegator!
+
+  """
+  The Operator from whom the tokens are being unstaked.
+  """
+  operator: Operator!
+
+  """
+  The associated delegation for this unstake request.
+  """
+  delegation: Delegation!
+
+  """
+  The asset ID of the tokens being unstaked.
+  """
+  assetId: BigInt!
+
+  """
+  The current status of the unstake request.
+  """
+  currentStatus: UnstakeRequestStatus!
+
+  """
+  The current amount of tokens in the unstake request.
+  """
+  currentAmount: BigInt!
+
+  """
+  The block number when the withdraw request was created.
+  """
+  createdAt: Int!
+
+  """
+  The block number when the withdraw request was last updated.
+  """
+  updatedAt: Int!
+
+  """
+  History of changes to this unstake request.
+  """
+  history: [UnstakeRequestHistory!]! @derivedFrom(field: "unstakeRequest")
+}
+
+"""
+Represents the history of changes to an unstake request.
+"""
+type UnstakeRequestHistory @entity {
+  """
+  Unique identifier for the unstake request history entry. Composite key: unstake request ID + block number
+  """
+  id: ID!
+
+  """
+  The unstake request this history entry is associated with.
+  """
+  unstakeRequest: UnstakeRequest!
+
+  """
+  The status of the unstake request at this point in history.
+  """
+  status: UnstakeRequestStatus!
+
+  """
+  The amount of tokens in the unstake request at this point in history.
+  """
+  amount: BigInt!
+
+  """
+  The block number at which this history entry was created.
+  """
+  blockNumber: Int!
+}
+
+"""
+Enum representing the status of an unstake request.
+"""
+enum UnstakeRequestStatus {
+  """
+  The unstake request has been scheduled but not yet executed.
+  """
+  SCHEDULED
+
+  """
+  The unstake request has been successfully executed.
+  """
+  EXECUTED
+
+  """
+  The unstake request has been cancelled before execution.
+  """
+  CANCELLED
+}
+
+"""
+Represents a withdraw request in the system.
+"""
+type WithdrawRequest @entity {
+  """
+  Unique identifier for the withdraw request. Composite key: delegator ID + asset ID
+  """
+  id: ID!
+
+  """
+  The Delegator who made the withdraw request.
+  """
+  delegator: Delegator!
+
+  """
+  The deposit associated with this withdraw request.
+  """
+  deposit: Deposit!
+
+  """
+  The asset ID of the tokens being withdrawn.
+  """
+  assetId: BigInt!
+
+  """
+  The current status of the withdraw request.
+  """
+  currentStatus: WithdrawRequestStatus!
+
+  """
+  The amount of tokens requested for withdrawal.
+  """
+  currentAmount: BigInt!
+
+  """
+  The block number when the withdraw request was created.
+  """
+  createdAt: Int!
+
+  """
+  The block number when the withdraw request was last updated.
+  """
+  updatedAt: Int!
+
+  """
+  History of changes to this withdraw request.
+  """
+  history: [WithdrawRequestHistory!]! @derivedFrom(field: "withdrawRequest")
+}
+
+"""
+Represents a history entry for a withdraw request.
+"""
+type WithdrawRequestHistory @entity {
+  """
+  Unique identifier for the withdraw request history entry. Composite key: withdraw request ID + block number
+  """
+  id: ID!
+
+  """
+  The withdraw request this history entry is associated with.
+  """
+  withdrawRequest: WithdrawRequest!
+
+  """
+  The status of the withdraw request at this point in history.
+  """
+  status: WithdrawRequestStatus!
+
+  """
+  The amount of tokens in the withdraw request at this point in history.
+  """
+  amount: BigInt!
+
+  """
+  The block number at which this history entry was created.
+  """
+  blockNumber: Int!
+}
+
+"""
+Enum representing the status of an withdraw request.
+"""
+enum WithdrawRequestStatus {
+  """
+  The withdraw request has been scheduled but not yet executed.
+  """
+  SCHEDULED
+
+  """
+  The withdraw request has been successfully executed.
+  """
+  EXECUTED
+
+  """
+  The withdraw request has been cancelled before execution.
+  """
+  CANCELLED
+}
