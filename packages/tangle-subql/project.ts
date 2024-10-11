@@ -56,26 +56,18 @@ const project: SubstrateProject = {
       mapping: {
         file: './dist/index.js',
         handlers: [
-          {
-            kind: SubstrateHandlerKind.Block,
-            handler: 'handleBlock',
-            filter: {
-              modulo: 100,
-            },
-          },
+          /**
+           * TODO: Consider handling cases where the pallet is called through
+           * utility.batch. This may require additional filtering or processing
+           * to capture all relevant transactions.
+           */
           {
             kind: SubstrateHandlerKind.Call,
             handler: 'handleCall',
             filter: {
-              module: 'balances',
-            },
-          },
-          {
-            kind: SubstrateHandlerKind.Event,
-            handler: 'handleEvent',
-            filter: {
-              module: 'balances',
-              method: 'Transfer',
+              module: 'multiAssetDelegation',
+              success: true,
+              isSigned: true,
             },
           },
         ],
