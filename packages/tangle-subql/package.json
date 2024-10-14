@@ -26,6 +26,9 @@
   ],
   "author": "Tangle Developers",
   "license": "MIT",
+  "exports": {
+    "chaintypes": "./src/chaintypes.ts"
+  },
   "devDependencies": {
     "@polkadot/api": "^13.2.1",
     "@polkadot/types": "^13.2.1",
@@ -34,7 +37,9 @@
     "@subql/testing": "latest",
     "@subql/types": "latest",
     "@types/pino": "^7.0.5",
+    "@webb-tools/tangle-substrate-types": "^0.9.1",
     "dotenv": "latest",
+    "tsx": "^4.19.1",
     "typescript": "^5.2.2"
   }
 }

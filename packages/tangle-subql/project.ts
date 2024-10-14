@@ -48,6 +48,9 @@ const project: SubstrateProject = {
      * These settings can be found in your docker-compose.yaml, they will slow indexing but prevent your project being rate limited
      */
     endpoint: (process.env.ENDPOINT ?? '').split(',') as string[] | string,
+    chaintypes: {
+      file: './dist/chaintypes.js',
+    },
   },
   dataSources: [
     {
