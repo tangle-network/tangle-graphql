@@ -532,3 +532,163 @@ enum WithdrawRequestStatus {
   """
   CANCELLED
 }
+
+"""
+Represents an LST Pool in the system.
+"""
+type LSTPool @entity {
+  """
+  LST Pool's unique identifier.
+  """
+  id: ID!
+
+  """
+  The current state of the LST Pool.
+  """
+  currentState: LSTPoolState!
+
+  """
+  The total stake amount in the LST Pool.
+  """
+  totalStake: BigInt!
+
+  """
+  List of members in the LST Pool.
+  """
+  members: [LSTPoolMember!]! @derivedFrom(field: "lstPool")
+
+  """
+  History of state changes for the LST Pool.
+  """
+  stateHistory: [LSTPoolStateChange!]! @derivedFrom(field: "lstPool")
+
+  """
+  History of activities in the LST Pool.
+  """
+  activityHistory: [LSTPoolActivity!]! @derivedFrom(field: "lstPool")
+}
+
+"""
+Enum representing the current state of an LST Pool.
+"""
+enum LSTPoolState {
+  """
+  The LST Pool is open for new members.
+  """
+  OPEN
+
+  """
+  The LST Pool is in the process of being destroyed.
+  """
+  DESTROYING
+
+  """
+  The LST Pool is closed and not accepting new members.
+  """
+  CLOSED
+}
+
+"""
+Represents a change in the state of an LST Pool.
+"""
+type LSTPoolStateChange @entity {
+  """
+  Unique identifier for the state change. Composite key: lstPool ID + block number
+  """
+  id: ID!
+
+  """
+  The LST Pool whose state has changed.
+  """
+  lstPool: LSTPool!
+
+  """
+  The new state of the LST Pool.
+  """
+  state: LSTPoolState!
+
+  """
+  The block number at which the state change occurred.
+  """
+  blockNumber: Int!
+}
+
+"""
+Represents a member of an LST Pool.
+"""
+type LSTPoolMember @entity {
+  """
+  Unique identifier for the LST Pool member. Composite key: lstPool ID + member ID
+  """
+  id: ID!
+
+  """
+  The LST Pool to which the member belongs.
+  """
+  lstPool: LSTPool!
+
+  """
+  The account ID of the member.
+  """
+  memberId: ID!
+
+  """
+  The current stake amount of the member in the LST Pool.
+  """
+  currentStake: BigInt!
+
+  """
+  History of stake changes for the member.
+  """
+  stakeHistory: [MemberStakeChange!]! @derivedFrom(field: "member")
+}
+
+"""
+Represents a change in the stake of a LST Pool member.
+"""
+type MemberStakeChange @entity {
+  """
+  Unique identifier for the stake change. Composite key: member ID + block number
+  """
+  id: ID!
+
+  """
+  The LST Pool member whose stake has changed.
+  """
+  member: LSTPoolMember!
+
+  """
+  The amount of the stake change.
+  """
+  amount: BigInt!
+
+  """
+  The block number at which the stake change occurred.
+  """
+  blockNumber: Int!
+}
+
+"""
+Represents an activity in an LST Pool.
+"""
+type LSTPoolActivity @entity {
+  """
+  Unique identifier for the LST Pool activity. Composite key: lstPool ID + block number
+  """
+  id: ID!
+
+  """
+  The LST Pool where the activity occurred.
+  """
+  lstPool: LSTPool!
+
+  """
+  Description of the activity.
+  """
+  description: String!
+
+  """
+  The block number at which the activity occurred.
+  """
+  blockNumber: Int!
+}
