@@ -561,11 +561,6 @@ type LSTPool @entity {
   History of state changes for the LST Pool.
   """
   stateHistory: [LSTPoolStateChange!]! @derivedFrom(field: "lstPool")
-
-  """
-  History of activities in the LST Pool.
-  """
-  activityHistory: [LSTPoolActivity!]! @derivedFrom(field: "lstPool")
 }
 
 """
@@ -648,7 +643,7 @@ Represents a change in the stake of a LST Pool member.
 """
 type MemberStakeChange @entity {
   """
-  Unique identifier for the stake change. Composite key: member ID + block number
+  Unique identifier for the stake change. Composite key: lstPool ID + member ID + block number
   """
   id: ID!
 
@@ -664,31 +659,6 @@ type MemberStakeChange @entity {
 
   """
   The block number at which the stake change occurred.
-  """
-  blockNumber: Int!
-}
-
-"""
-Represents an activity in an LST Pool.
-"""
-type LSTPoolActivity @entity {
-  """
-  Unique identifier for the LST Pool activity. Composite key: lstPool ID + block number
-  """
-  id: ID!
-
-  """
-  The LST Pool where the activity occurred.
-  """
-  lstPool: LSTPool!
-
-  """
-  Description of the activity.
-  """
-  description: String!
-
-  """
-  The block number at which the activity occurred.
   """
   blockNumber: Int!
 }
