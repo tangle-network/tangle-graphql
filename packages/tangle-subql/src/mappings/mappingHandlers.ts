@@ -1,77 +1,130 @@
-import assert from 'assert';
-import {
-  SubstrateExtrinsic,
-  SubstrateEvent,
-  SubstrateBlock,
-} from '@subql/types';
-import { Account, Transfer } from '../types';
-import { Balance } from '@polkadot/types/interfaces';
-import { decodeAddress } from '@polkadot/util-crypto';
-
-export async function handleBlock(block: SubstrateBlock): Promise<void> {
-  // Do something with each block handler here
-  logger.info(`New block: ${block.block.hash.toString()}`);
-}
+import { SubstrateExtrinsic } from '@subql/types';
+import handleJoinOperators from './restake/operators/calls/handleJoinOperators';
+import { u128 } from '@polkadot/types';
+import handleScheduleLeaveOperators from './restake/operators/calls/handleScheduleLeaveOperators';
+import handleCancelLeaveOperators from './restake/operators/calls/handleCancelLeaveOperators';
+import handleExecuteLeaveOperators from './restake/operators/calls/handleExecuteLeaveOperators';
+import handleOperatorBondMore from './restake/operators/calls/handleOperatorBondMore';
+import handleScheduleOperatorUnstake from './restake/operators/calls/handleScheduleOperatorUnstake';
+import handleExecuteOperatorUnstake from './restake/operators/calls/handleExecuteOperatorUnstake';
+import handleCancelOperatorUnstake from './restake/operators/calls/handleCancelOperatorUnstake';
+import handleGoOnline from './restake/operators/calls/handleGoOnline';
+import handleGoOffline from './restake/operators/calls/handleGoOffline';
+import handleDeposit from './restake/delegators/calls/handleDeposit';
+import handleScheduleWithdraw from './restake/delegators/calls/handleScheduleWithdraw';
+import handleExecuteWithdraw from './restake/delegators/calls/handleExecuteWithdraw';
+import handleCancelWithdraw from './restake/delegators/calls/handleCancelWithdraw';
+import handleDelegate from './restake/delegators/calls/handleDelegate';
+import { AccountId32 } from '@polkadot/types/interfaces';
+import handleScheduleUnstake from './restake/delegators/calls/handleScheduleUnstake';
+import handleExecuteUnstake from './restake/delegators/calls/handleExecuteUnstake';
+import handleCancelUnstake from './restake/delegators/calls/handleCancelUnstake';
 
 export async function handleCall(extrinsic: SubstrateExtrinsic): Promise<void> {
-  // Do something with a call handler here
-  logger.info(
-    `New extrinsic index ${
-      extrinsic.idx
-    } at block hash: ${extrinsic.block.block.hash.toString()}`,
-  );
-}
+  const { section, method } = extrinsic.extrinsic.method;
 
-export async function handleEvent(event: SubstrateEvent): Promise<void> {
-  logger.info(
-    `New transfer event found at block ${event.block.block.header.number.toString()}`,
-  );
+  switch (method) {
+    case 'joinOperators': {
+      return handleJoinOperators(
+        extrinsic as SubstrateExtrinsic<[bondAmount: u128]>,
+      );
+    }
 
-  // Get data from the event
-  // The balances.transfer event has the following payload \[from, to, value\]
-  // logger.info(JSON.stringify(event));
-  const {
-    event: {
-      data: [, to, amount],
-    },
-  } = event;
+    case 'scheduleLeaveOperators': {
+      return handleScheduleLeaveOperators(extrinsic);
+    }
 
-  const from = event.extrinsic?.extrinsic.signer;
-  assert(from, 'Signer is missing');
+    case 'cancelLeaveOperators': {
+      return handleCancelLeaveOperators(extrinsic);
+    }
 
-  const blockNumber: number = event.block.block.header.number.toNumber();
+    case 'executeLeaveOperators': {
+      return handleExecuteLeaveOperators(extrinsic);
+    }
 
-  const fromAccount = await checkAndGetAccount(from.toString(), blockNumber);
-  const toAccount = await checkAndGetAccount(to.toString(), blockNumber);
+    case 'operatorBondMore': {
+      return handleOperatorBondMore(
+        extrinsic as SubstrateExtrinsic<[additionalBond: u128]>,
+      );
+    }
 
-  // Create the new transfer entity
-  const transfer = Transfer.create({
-    id: `${event.block.block.header.number.toNumber()}-${event.idx}`,
-    blockNumber,
-    date: event.block.timestamp,
-    fromId: fromAccount.id,
-    toId: toAccount.id,
-    amount: (amount as Balance).toBigInt(),
-  });
+    case 'scheduleOperatorUnstake': {
+      return handleScheduleOperatorUnstake(
+        extrinsic as SubstrateExtrinsic<[unstakeAmount: u128]>,
+      );
+    }
 
-  fromAccount.lastTransferBlock = blockNumber;
-  toAccount.lastTransferBlock = blockNumber;
+    case 'executeOperatorUnstake': {
+      return handleExecuteOperatorUnstake(extrinsic);
+    }
 
-  await Promise.all([fromAccount.save(), toAccount.save(), transfer.save()]);
-}
+    case 'cancelOperatorUnstake': {
+      return handleCancelOperatorUnstake(extrinsic);
+    }
 
-async function checkAndGetAccount(
-  id: string,
-  blockNumber: number,
-): Promise<Account> {
-  let account = await Account.get(id.toLowerCase());
-  if (!account) {
-    // We couldn't find the account
-    account = Account.create({
-      id: id.toLowerCase(),
-      publicKey: decodeAddress(id).toString().toLowerCase(),
-      firstTransferBlock: blockNumber,
-    });
+    case 'goOnline': {
+      return handleGoOnline(extrinsic);
+    }
+
+    case 'goOffline': {
+      return handleGoOffline(extrinsic);
+    }
+
+    case 'deposit': {
+      return handleDeposit(
+        extrinsic as SubstrateExtrinsic<[assetId: u128, amount: u128]>,
+      );
+    }
+
+    case 'scheduleWithdraw': {
+      return handleScheduleWithdraw(
+        extrinsic as SubstrateExtrinsic<[assetId: u128, amount: u128]>,
+      );
+    }
+
+    case 'executeWithdraw': {
+      return handleExecuteWithdraw(extrinsic);
+    }
+
+    case 'cancelWithdraw': {
+      return handleCancelWithdraw(
+        extrinsic as SubstrateExtrinsic<[assetId: u128, amount: u128]>,
+      );
+    }
+
+    case 'delegate': {
+      return handleDelegate(
+        extrinsic as SubstrateExtrinsic<
+          [operator: AccountId32, assetId: u128, amount: u128]
+        >,
+      );
+    }
+
+    case 'scheduleDelegatorUnstake': {
+      return handleScheduleUnstake(
+        extrinsic as SubstrateExtrinsic<
+          [operator: AccountId32, assetId: u128, amount: u128]
+        >,
+      );
+    }
+
+    case 'executeDelegatorUnstake': {
+      return handleExecuteUnstake(extrinsic);
+    }
+
+    case 'cancelDelegatorUnstake': {
+      return handleCancelUnstake(
+        extrinsic as SubstrateExtrinsic<
+          [operator: AccountId32, assetId: u128, amount: u128]
+        >,
+      );
+    }
+
+    default: {
+      logger.warn(`Unhandled extrinsic: ${method}`, {
+        method,
+        section,
+      });
+    }
   }
-  return account;
 }

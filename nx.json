@@ -3,15 +3,13 @@
   "targetDefaults": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [
-        "{projectRoot}/packages/tangle-subql/dist",
-        "{projectRoot}/packages/tangle-subql/src/types"
-      ],
+      "outputs": ["{projectRoot}/dist", "{projectRoot}/src/types"],
       "cache": true
     },
     "codegen": {
       "dependsOn": ["^codegen"],
-      "outputs": ["{projectRoot}/packages/tangle-subql/src/types"],
+      "inputs": ["{projectRoot}/**/*.graphql"],
+      "outputs": ["{projectRoot}/src/types"],
       "cache": true
     },
     "test": {
@@ -20,10 +18,7 @@
     },
     "build:develop": {
       "dependsOn": ["^build:develop"],
-      "outputs": [
-        "{projectRoot}/packages/tangle-subql/dist",
-        "{projectRoot}/packages/tangle-subql/src/types"
-      ],
+      "outputs": ["{projectRoot}/dist", "{projectRoot}/src/types"],
       "cache": true
     }
   },

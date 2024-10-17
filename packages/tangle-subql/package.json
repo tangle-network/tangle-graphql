@@ -7,8 +7,9 @@
     "build": "subql codegen && subql build",
     "codegen": "subql codegen",
     "start:docker": "docker-compose pull && docker-compose up --remove-orphans",
-    "dev": "subql codegen && subql build && docker-compose pull && docker-compose up --remove-orphans",
+    "dev": "nx stop tangle-subql && yarn run clean && subql codegen && subql build && docker-compose pull && docker-compose up --remove-orphans",
     "prepack": "rm -rf dist && npm run build",
+    "clean": "rm -rf .data && rm -rf src/types && rm -rf dist",
     "test": "subql build && subql-node test",
     "build:develop": "NODE_ENV=develop subql codegen && NODE_ENV=develop subql build"
   },
@@ -25,14 +26,20 @@
   ],
   "author": "Tangle Developers",
   "license": "MIT",
+  "exports": {
+    "chaintypes": "./src/chaintypes.ts"
+  },
   "devDependencies": {
-    "@polkadot/api": "^14.0.1",
+    "@polkadot/api": "^13.2.1",
+    "@polkadot/types": "^13.2.1",
     "@subql/cli": "latest",
     "@subql/common-substrate": "latest",
     "@subql/testing": "latest",
     "@subql/types": "latest",
     "@types/pino": "^7.0.5",
+    "@webb-tools/tangle-substrate-types": "^0.9.1",
     "dotenv": "latest",
+    "tsx": "^4.19.1",
     "typescript": "^5.2.2"
   }
 }
