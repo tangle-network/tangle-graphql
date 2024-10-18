@@ -653,7 +653,7 @@ type MemberStakeChange @entity {
   member: LSTPoolMember!
 
   """
-  The amount of the stake change.
+  The amount of the stake change (positive for increase, negative for decrease).
   """
   amount: BigInt!
 
