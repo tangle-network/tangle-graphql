@@ -1,6 +1,6 @@
-import { SubstrateExtrinsic } from '@subql/types';
+import { SubstrateEvent, SubstrateExtrinsic } from '@subql/types';
 import handleJoinOperators from './restake/operators/calls/handleJoinOperators';
-import { u128 } from '@polkadot/types';
+import { bool, u128, u32 } from '@polkadot/types';
 import handleScheduleLeaveOperators from './restake/operators/calls/handleScheduleLeaveOperators';
 import handleCancelLeaveOperators from './restake/operators/calls/handleCancelLeaveOperators';
 import handleExecuteLeaveOperators from './restake/operators/calls/handleExecuteLeaveOperators';
@@ -19,6 +19,11 @@ import { AccountId32 } from '@polkadot/types/interfaces';
 import handleScheduleUnstake from './restake/delegators/calls/handleScheduleUnstake';
 import handleExecuteUnstake from './restake/delegators/calls/handleExecuteUnstake';
 import handleCancelUnstake from './restake/delegators/calls/handleCancelUnstake';
+import handleStateChanged from './lst/events/handleStateChanged';
+import { PalletTangleLstPoolsPoolState } from '@polkadot/types/lookup';
+import handleUnbonded from './lst/events/handleUnbonded';
+import handleBonded from './lst/events/handleBonded';
+import handleCreated from './lst/events/handleCreated';
 
 export async function handleCall(extrinsic: SubstrateExtrinsic): Promise<void> {
   const { section, method } = extrinsic.extrinsic.method;
@@ -127,4 +132,36 @@ export async function handleCall(extrinsic: SubstrateExtrinsic): Promise<void> {
       });
     }
   }
+}
+
+export async function handleLstStateChanged(
+  event: SubstrateEvent,
+): Promise<void> {
+  return handleStateChanged(
+    event as SubstrateEvent<
+      [poolId: u32, newState: PalletTangleLstPoolsPoolState]
+    >,
+  );
+}
+
+export async function handleLstUnbonded(event: SubstrateEvent): Promise<void> {
+  return handleUnbonded(
+    event as SubstrateEvent<
+      [member: AccountId32, poolId: u32, balance: u128, points: u128, era: u32]
+    >,
+  );
+}
+
+export async function handleLstBonded(event: SubstrateEvent): Promise<void> {
+  return handleBonded(
+    event as SubstrateEvent<
+      [member: AccountId32, poolId: u32, bonded: u128, joined: bool]
+    >,
+  );
+}
+
+export async function handleLstCreated(event: SubstrateEvent): Promise<void> {
+  return handleCreated(
+    event as SubstrateEvent<[depositor: AccountId32, poolId: u32]>,
+  );
 }
