@@ -532,3 +532,133 @@ enum WithdrawRequestStatus {
   """
   CANCELLED
 }
+
+"""
+Represents an Lst Pool in the system.
+"""
+type LstPool @entity {
+  """
+  Lst Pool's unique identifier.
+  """
+  id: ID!
+
+  """
+  The current state of the Lst Pool.
+  """
+  currentState: LstPoolState!
+
+  """
+  The total stake amount in the Lst Pool.
+  """
+  totalStake: BigInt!
+
+  """
+  List of members in the Lst Pool.
+  """
+  members: [LstPoolMember!]! @derivedFrom(field: "lstPool")
+
+  """
+  History of state changes for the Lst Pool.
+  """
+  stateHistory: [LstPoolStateChange!]! @derivedFrom(field: "lstPool")
+}
+
+"""
+Enum representing the current state of an Lst Pool.
+"""
+enum LstPoolState {
+  """
+  The Lst Pool is open for new members.
+  """
+  OPEN
+
+  """
+  The Lst Pool is in the process of being destroyed.
+  """
+  DESTROYING
+
+  """
+  The Lst Pool is closed and not accepting new members.
+  """
+  CLOSED
+}
+
+"""
+Represents a change in the state of an Lst Pool.
+"""
+type LstPoolStateChange @entity {
+  """
+  Unique identifier for the state change. Composite key: LstPool ID + block number
+  """
+  id: ID!
+
+  """
+  The Lst Pool whose state has changed.
+  """
+  lstPool: LstPool!
+
+  """
+  The new state of the Lst Pool.
+  """
+  state: LstPoolState!
+
+  """
+  The block number at which the state change occurred.
+  """
+  blockNumber: Int!
+}
+
+"""
+Represents a member of an Lst Pool.
+"""
+type LstPoolMember @entity {
+  """
+  Unique identifier for the Lst Pool member. Composite key: LstPool ID + member ID
+  """
+  id: ID!
+
+  """
+  The Lst Pool to which the member belongs.
+  """
+  lstPool: LstPool!
+
+  """
+  The account ID of the member.
+  """
+  memberId: ID!
+
+  """
+  The current stake amount of the member in the Lst Pool.
+  """
+  currentStake: BigInt!
+
+  """
+  History of stake changes for the member.
+  """
+  stakeHistory: [MemberStakeChange!]! @derivedFrom(field: "member")
+}
+
+"""
+Represents a change in the stake of a Lst Pool member.
+"""
+type MemberStakeChange @entity {
+  """
+  Unique identifier for the stake change. Composite key: LstPool ID + member ID + block number
+  """
+  id: ID!
+
+  """
+  The Lst Pool member whose stake has changed.
+  """
+  member: LstPoolMember!
+
+  """
+  The amount of the stake change (positive for increase, negative for decrease).
+  """
+  amount: BigInt!
+
+  """
+  The block number at which the stake change occurred.
+  """
+  blockNumber: Int!
+}

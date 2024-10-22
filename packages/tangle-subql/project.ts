@@ -73,6 +73,38 @@ const project: SubstrateProject = {
               isSigned: true,
             },
           },
+          {
+            kind: SubstrateHandlerKind.Event,
+            handler: 'handleLstStateChanged',
+            filter: {
+              module: 'lst',
+              method: 'StateChanged',
+            },
+          },
+          {
+            kind: SubstrateHandlerKind.Event,
+            handler: 'handleLstUnbonded',
+            filter: {
+              module: 'lst',
+              method: 'Unbonded',
+            },
+          },
+          {
+            kind: SubstrateHandlerKind.Event,
+            handler: 'handleLstBonded',
+            filter: {
+              module: 'lst',
+              method: 'Bonded',
+            },
+          },
+          {
+            kind: SubstrateHandlerKind.Event,
+            handler: 'handleLstCreated',
+            filter: {
+              module: 'lst',
+              method: 'Created',
+            },
+          },
         ],
       },
     },
