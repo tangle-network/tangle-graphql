@@ -534,73 +534,73 @@ enum WithdrawRequestStatus {
 }
 
 """
-Represents an lst Pool in the system.
+Represents an Lst Pool in the system.
 """
-type lstPool @entity {
+type LstPool @entity {
   """
-  lst Pool's unique identifier.
+  Lst Pool's unique identifier.
   """
   id: ID!
 
   """
-  The current state of the lst Pool.
+  The current state of the Lst Pool.
   """
-  currentState: lstPoolState!
+  currentState: LstPoolState!
 
   """
-  The total stake amount in the lst Pool.
+  The total stake amount in the Lst Pool.
   """
   totalStake: BigInt!
 
   """
-  List of members in the lst Pool.
+  List of members in the Lst Pool.
   """
-  members: [lstPoolMember!]! @derivedFrom(field: "lstPool")
+  members: [LstPoolMember!]! @derivedFrom(field: "lstPool")
 
   """
-  History of state changes for the lst Pool.
+  History of state changes for the Lst Pool.
   """
-  stateHistory: [lstPoolStateChange!]! @derivedFrom(field: "lstPool")
+  stateHistory: [LstPoolStateChange!]! @derivedFrom(field: "lstPool")
 }
 
 """
-Enum representing the current state of an lst Pool.
+Enum representing the current state of an Lst Pool.
 """
-enum lstPoolState {
+enum LstPoolState {
   """
-  The lst Pool is open for new members.
+  The Lst Pool is open for new members.
   """
   OPEN
 
   """
-  The lst Pool is in the process of being destroyed.
+  The Lst Pool is in the process of being destroyed.
   """
   DESTROYING
 
   """
-  The lst Pool is closed and not accepting new members.
+  The Lst Pool is closed and not accepting new members.
   """
   CLOSED
 }
 
 """
-Represents a change in the state of an lst Pool.
+Represents a change in the state of an Lst Pool.
 """
-type lstPoolStateChange @entity {
+type LstPoolStateChange @entity {
   """
-  Unique identifier for the state change. Composite key: lstPool ID + block number
+  Unique identifier for the state change. Composite key: LstPool ID + block number
   """
   id: ID!
 
   """
-  The lst Pool whose state has changed.
+  The Lst Pool whose state has changed.
   """
-  lstPool: lstPool!
+  lstPool: LstPool!
 
   """
-  The new state of the lst Pool.
+  The new state of the Lst Pool.
   """
-  state: lstPoolState!
+  state: LstPoolState!
 
   """
   The block number at which the state change occurred.
@@ -609,18 +609,18 @@ type lstPoolStateChange @entity {
 }
 
 """
-Represents a member of an lst Pool.
+Represents a member of an Lst Pool.
 """
-type lstPoolMember @entity {
+type LstPoolMember @entity {
   """
-  Unique identifier for the lst Pool member. Composite key: lstPool ID + member ID
+  Unique identifier for the Lst Pool member. Composite key: LstPool ID + member ID
   """
   id: ID!
 
   """
-  The lst Pool to which the member belongs.
+  The Lst Pool to which the member belongs.
   """
-  lstPool: lstPool!
+  lstPool: LstPool!
 
   """
   The account ID of the member.
@@ -628,7 +628,7 @@ type lstPoolMember @entity {
   memberId: ID!
 
   """
-  The current stake amount of the member in the lst Pool.
+  The current stake amount of the member in the Lst Pool.
   """
   currentStake: BigInt!
 
@@ -639,18 +639,18 @@ type lstPoolMember @entity {
 }
 
 """
-Represents a change in the stake of a lst Pool member.
+Represents a change in the stake of a Lst Pool member.
 """
 type MemberStakeChange @entity {
   """
-  Unique identifier for the stake change. Composite key: lstPool ID + member ID + block number
+  Unique identifier for the stake change. Composite key: LstPool ID + member ID + block number
   """
   id: ID!
 
   """
-  The lst Pool member whose stake has changed.
+  The Lst Pool member whose stake has changed.
   """
-  member: lstPoolMember!
+  member: LstPoolMember!
 
   """
   The amount of the stake change (positive for increase, negative for decrease).

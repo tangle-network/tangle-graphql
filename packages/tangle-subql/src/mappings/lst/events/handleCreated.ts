@@ -1,7 +1,7 @@
 import { u32 } from '@polkadot/types';
 import { AccountId32 } from '@polkadot/types/interfaces';
 import { SubstrateEvent } from '@subql/types';
-import { LSTPool, LSTPoolState, LSTPoolStateChange } from '../../../types';
+import { LstPool, LstPoolState, LstPoolStateChange } from '../../../types';
 
 export default async function handleCreated(
   event: SubstrateEvent<[depositor: AccountId32, poolId: u32]>,
@@ -10,20 +10,20 @@ export default async function handleCreated(
   const blockNumber = event.block.block.header.number.toNumber();
 
   const pool =
-    (await LSTPool.get(poolId.toString())) ??
-    LSTPool.create({
+    (await LstPool.get(poolId.toString())) ??
+    LstPool.create({
       id: poolId.toString(),
-      currentState: LSTPoolState.OPEN,
+      currentState: LstPoolState.OPEN,
       totalStake: 0n,
     });
 
-  pool.currentState = LSTPoolState.OPEN;
+  pool.currentState = LstPoolState.OPEN;
   pool.totalStake = 0n;
 
-  const stateChange = LSTPoolStateChange.create({
+  const stateChange = LstPoolStateChange.create({
     id: `${poolId.toString()}-${blockNumber}`,
     lstPoolId: poolId.toString(),
-    state: LSTPoolState.OPEN,
+    state: LstPoolState.OPEN,
     blockNumber,
   });
 

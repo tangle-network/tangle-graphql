@@ -3,9 +3,9 @@ import { AccountId32 } from '@polkadot/types/interfaces';
 import { SubstrateEvent } from '@subql/types';
 import assert from 'assert';
 import {
-  LSTPool,
-  LSTPoolMember,
-  LSTPoolState,
+  LstPool,
+  LstPoolMember,
+  LstPoolState,
   MemberStakeChange,
 } from '../../../types';
 
@@ -18,17 +18,17 @@ export default async function handleBonded(
   const blockNumber = event.block.block.header.number.toNumber();
 
   const pool =
-    (await LSTPool.get(poolId.toString())) ??
-    LSTPool.create({
+    (await LstPool.get(poolId.toString())) ??
+    LstPool.create({
       id: poolId.toString(),
-      currentState: LSTPoolState.OPEN,
+      currentState: LstPoolState.OPEN,
       totalStake: 0n,
     });
 
   pool.totalStake += bonded.toBigInt();
 
   if (joined.isTrue) {
-    const poolMember = LSTPoolMember.create({
+    const poolMember = LstPoolMember.create({
       id: `${poolId.toString()}-${member.toString()}`,
       lstPoolId: poolId.toString(),
       memberId: member.toString(),
@@ -44,7 +44,7 @@ export default async function handleBonded(
 
     await Promise.all([poolMember.save(), stakeChange.save()]);
   } else {
-    const poolMember = await LSTPoolMember.get(
+    const poolMember = await LstPoolMember.get(
       `${poolId.toString()}-${member.toString()}`,
     );
 

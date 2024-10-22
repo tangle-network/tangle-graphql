@@ -2,7 +2,7 @@ import { u32 } from '@polkadot/types';
 import { PalletTangleLstPoolsPoolState } from '@polkadot/types/lookup';
 import { SubstrateEvent } from '@subql/types';
 import assert from 'assert';
-import { LSTPool, LSTPoolState, LSTPoolStateChange } from '../../../types';
+import { LstPool, LstPoolState, LstPoolStateChange } from '../../../types';
 
 export default async function handleStateChanged(
   event: SubstrateEvent<[poolId: u32, newState: PalletTangleLstPoolsPoolState]>,
@@ -10,13 +10,13 @@ export default async function handleStateChanged(
   const [poolId, newState] = event.event.data;
   const blockNumber = event.block.block.header.number.toNumber();
 
-  const pool = await LSTPool.get(poolId.toString());
+  const pool = await LstPool.get(poolId.toString());
 
   assert(pool, 'Pool not found');
 
   const state = convertState(newState);
 
-  const stateChange = LSTPoolStateChange.create({
+  const stateChange = LstPoolStateChange.create({
     id: `${poolId.toString()}-${blockNumber}`,
     lstPoolId: poolId.toString(),
     state,
@@ -28,16 +28,16 @@ export default async function handleStateChanged(
   await Promise.all([pool.save(), stateChange.save()]);
 }
 
-function convertState(state: PalletTangleLstPoolsPoolState): LSTPoolState {
+function convertState(state: PalletTangleLstPoolsPoolState): LstPoolState {
   switch (state.type) {
     case 'Open':
-      return LSTPoolState.OPEN;
+      return LstPoolState.OPEN;
 
     case 'Blocked':
-      return LSTPoolState.CLOSED;
+      return LstPoolState.CLOSED;
 
     case 'Destroying':
-      return LSTPoolState.DESTROYING;
+      return LstPoolState.DESTROYING;
 
     default:
       throw new Error(`Unknown state: ${state.type}`);

@@ -2,7 +2,7 @@ import { u128, u32 } from '@polkadot/types';
 import { AccountId32 } from '@polkadot/types/interfaces';
 import { SubstrateEvent } from '@subql/types';
 import assert from 'assert';
-import { LSTPool, LSTPoolMember, MemberStakeChange } from '../../../types';
+import { LstPool, LstPoolMember, MemberStakeChange } from '../../../types';
 
 export default async function handleUnbonded(
   event: SubstrateEvent<
@@ -12,13 +12,13 @@ export default async function handleUnbonded(
   const [member, poolId, balance] = event.event.data;
   const blockNumber = event.block.block.header.number.toNumber();
 
-  const pool = await LSTPool.get(poolId.toString());
+  const pool = await LstPool.get(poolId.toString());
 
   assert(pool, 'Pool not found');
 
   pool.totalStake -= balance.toBigInt();
 
-  const poolMember = await LSTPoolMember.get(
+  const poolMember = await LstPoolMember.get(
     `${poolId.toString()}-${member.toString()}`,
   );
 
