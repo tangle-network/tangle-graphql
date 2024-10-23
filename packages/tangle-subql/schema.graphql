@@ -51,6 +51,20 @@ type Operator @entity {
   List of delegations made to this Operator.
   """
   delegations: [Delegation!] @derivedFrom(field: "operator")
+
+  """
+  Total number of services registered by this Operator.
+  """
+  totalServices: Int!
+
+  """
+  Total number of Blueprints registered by this Operator.
+  """
+  totalBlueprints: Int!
+  """
+  List of registered Blueprints for this Operator.
+  """
+  registeredBlueprints: [BlueprintOperator!]! @derivedFrom(field: "operator")
 }
 
 """
@@ -661,4 +675,254 @@ type MemberStakeChange @entity {
   The block number at which the stake change occurred.
   """
   blockNumber: Int!
+}
+
+"""
+Blueprint entity: Represents service blueprints in the system
+"""
+type Blueprint @entity {
+  """
+  Unique identifier for the Blueprint.
+  """
+  id: ID!
+
+  """
+  The name of the Blueprint.
+  """
+  name: String!
+
+  """
+  The description of the Blueprint.
+  """
+  description: String
+
+  """
+  The creation block number of the Blueprint.
+  """
+  createdAt: Int!
+
+  """
+  The last update block number of the Blueprint.
+  """
+  updatedAt: Int!
+
+  """
+  The version of the Blueprint.
+  """
+  version: String!
+
+  """
+  The status of the Blueprint.
+  """
+  status: BlueprintStatus!
+
+  """
+  List of Operators that have registered this Blueprint.
+  """
+  operators: [BlueprintOperator!]! @derivedFrom(field: "blueprint")
+
+  """
+  List of Service Deployments associated with this Blueprint.
+  """
+  deployments: [ServiceDeployment!]! @derivedFrom(field: "blueprint")
+
+  """
+  List of Jobs defined in this Blueprint.
+  """
+  jobs: [Job!]! @derivedFrom(field: "blueprint")
+}
+
+"""
+BlueprintOperator entity: Represents the relationship between blueprints and operators
+"""
+type BlueprintOperator @entity {
+  """
+  Unique identifier for the relationship. Composite key: Blueprint ID + Operator ID
+  """
+  id: ID!
+
+  """
+  The Blueprint associated with this relationship.
+  """
+  blueprint: Blueprint!
+
+  """
+  The Operator associated with this relationship.
+  """
+  operator: Operator!
+
+  """
+  The registration block number of the relationship.
+  """
+  registeredAt: Int!
+
+  """
+  Indicates whether the relationship is currently active.
+  """
+  isActive: Boolean!
+}
+
+"""
+ServiceDeployment entity: Tracks deployed service instances
+"""
+type ServiceDeployment @entity {
+  """
+  Unique identifier for the Service Deployment.
+  """
+  id: ID!
+
+  """
+  The Blueprint associated with this Service Deployment.
+  """
+  blueprint: Blueprint!
+
+  """
+  The Operator associated with this Service Deployment.
+  """
+  operator: Operator!
+
+  """
+  The block number when the Service Deployment was deployed.
+  """
+  deployedAt: Int!
+
+  """
+  The status of the Service Deployment.
+  """
+  status: ServiceStatus!
+}
+
+"""
+Job entity: Represents jobs defined in blueprints
+"""
+type Job @entity {
+  """
+  Unique identifier for the Job. Composite key: Blueprint ID + job index
+  """
+  id: ID!
+
+  """
+  The Blueprint associated with this Job.
+  """
+  blueprint: Blueprint!
+
+  """
+  The name of the Job.
+  """
+  name: String!
+
+  """
+  The description of the Job.
+  """
+  description: String
+
+  """
+  List of executions for this Job.
+  """
+  executions: [JobExecution!]! @derivedFrom(field: "job")
+}
+
+"""
+JobExecution entity: Tracks job executions
+"""
+type JobExecution @entity {
+  """
+  Unique identifier for the Job Execution.
+  """
+  id: ID!
+
+  """
+  The Job associated with this execution.
+  """
+  job: Job!
+
+  """
+  The Operator associated with this execution.
+  """
+  operator: Operator!
+
+  """
+  The Service Deployment associated with this execution.
+  """
+  service: ServiceDeployment!
+
+  """
+  The block number when the Job Execution was executed.
+  """
+  executedAt: Int!
+
+  """
+  The status of the Job Execution.
+  """
+  status: JobStatus!
+}
+
+"""
+Blueprint status enum
+"""
+enum BlueprintStatus {
+  """
+  The Blueprint is a draft.
+  """
+  DRAFT
+
+  """
+  The Blueprint is published.
+  """
+  PUBLISHED
+
+  """
+  The Blueprint is deprecated.
+  """
+  DEPRECATED
+}
+
+"""
+Service status enum
+"""
+enum ServiceStatus {
+  """
+  The Service is pending.
+  """
+  PENDING
+
+  """
+  The Service is active.
+  """
+  ACTIVE
+
+  """
+  The Service is suspended.
+  """
+  SUSPENDED
+
+  """
+  The Service is terminated.
+  """
+  TERMINATED
+}
+
+"""
+Job status enum
+"""
+enum JobStatus {
+  """
+  The Job is pending.
+  """
+  PENDING
+
+  """
+  The Job is completed.
+  """
+  COMPLETED
+
+  """
+  The Job is failed.
+  """
+  FAILED
+
+  """
+  The Job is disputed.
+  """
+  DISPUTED
 }
