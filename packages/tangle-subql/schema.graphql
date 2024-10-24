@@ -3,6 +3,61 @@
 # https://academy.subquery.network/build/graphql.html#indexing-by-non-primary-key-field
 
 """
+Represents an Account in the system.
+"""
+type Account @entity {
+  """
+  Account's account ID, serves as the unique identifier.
+  """
+  id: ID!
+
+  """
+  The Operator associated with this account.
+  """
+  operator: Operator @derivedFrom(field: "account")
+
+  """
+  The Delegator associated with this account.
+  """
+  delegator: Delegator @derivedFrom(field: "account")
+
+  """
+  List of Lst Pool Members associated with this account.
+  """
+  lstPoolMembers: [LstPoolMember!]! @derivedFrom(field: "account")
+
+  """
+  List of Blueprints owned by this account.
+  """
+  blueprints: [Blueprint!]! @derivedFrom(field: "owner")
+
+  """
+  List of Service Requests owned by this account.
+  """
+  serviceRequests: [ServiceRequest!]! @derivedFrom(field: "owner")
+
+  """
+  List of Services owned by this account.
+  """
+  services: [Service!]! @derivedFrom(field: "owner")
+
+  """
+  List of Job calls made by this account.
+  """
+  jobCalls: [JobCall!]! @derivedFrom(field: "caller")
+
+  """
+  The block number when the account was created.
+  """
+  createdAt: Int!
+
+  """
+  The block number of the last update to the account's information.
+  """
+  lastUpdateAt: Int!
+}
+
+"""
 Represents an Operator in the system.
 """
 type Operator @entity {
@@ -10,6 +65,11 @@ type Operator @entity {
   Operator's account ID, serves as the unique identifier.
   """
   id: ID!
+
+  """
+  The account associated with this Operator.
+  """
+  account: Account!
 
   """
   Current status of the Operator (ACTIVE, LEAVING, or OFFLINE).
@@ -53,18 +113,24 @@ type Operator @entity {
   delegations: [Delegation!] @derivedFrom(field: "operator")
 
   """
-  Total number of services registered by this Operator.
+  Total number of Blueprints registered by this Operator.
+  """
+  totalBlueprints: Int!
+
+  """
+  Total number of Service Requests requested by this Operator.
+  """
+  totalServiceRequests: Int!
+
+  """
+  Total number of Services operated by this Operator.
   """
   totalServices: Int!
 
   """
-  Total number of Blueprints registered by this Operator.
+  List of job results executed by this Operator.
   """
-  totalBlueprints: Int!
-  """
-  List of registered Blueprints for this Operator.
-  """
-  registeredBlueprints: [BlueprintOperator!]! @derivedFrom(field: "operator")
+  jobResults: [JobResult!]! @derivedFrom(field: "operator")
 }
 
 """
@@ -175,6 +241,11 @@ type Delegator @entity {
   Delegator's account ID, serves as the unique identifier.
   """
   id: ID!
+
+  """
+  The account associated with this Delegator.
+  """
+  account: Account!
 
   """
   List of deposits made by the Delegator.
@@ -637,9 +708,9 @@ type LstPoolMember @entity {
   lstPool: LstPool!
 
   """
-  The account ID of the member.
+  The account associated with this Lst Pool Member.
   """
-  memberId: ID!
+  account: Account!
 
   """
   The current stake amount of the member in the Lst Pool.
@@ -687,14 +758,9 @@ type Blueprint @entity {
   id: ID!
 
   """
-  The name of the Blueprint.
+  The owner of the Blueprint.
   """
-  name: String!
-
-  """
-  The description of the Blueprint.
-  """
-  description: String
+  owner: Account!
 
   """
   The creation block number of the Blueprint.
@@ -702,34 +768,14 @@ type Blueprint @entity {
   createdAt: Int!
 
   """
-  The last update block number of the Blueprint.
+  List of Service Requests associated with this Blueprint.
   """
-  updatedAt: Int!
+  serviceRequests: [ServiceRequest!]! @derivedFrom(field: "blueprint")
 
   """
-  The version of the Blueprint.
+  List of Services associated with this Blueprint.
   """
-  version: String!
-
-  """
-  The status of the Blueprint.
-  """
-  status: BlueprintStatus!
-
-  """
-  List of Operators that have registered this Blueprint.
-  """
-  operators: [BlueprintOperator!]! @derivedFrom(field: "blueprint")
-
-  """
-  List of Service Deployments associated with this Blueprint.
-  """
-  deployments: [ServiceDeployment!]! @derivedFrom(field: "blueprint")
-
-  """
-  List of Jobs defined in this Blueprint.
-  """
-  jobs: [Job!]! @derivedFrom(field: "blueprint")
+  services: [Service!]! @derivedFrom(field: "blueprint")
 }
 
 """
@@ -757,172 +803,222 @@ type BlueprintOperator @entity {
   registeredAt: Int!
 
   """
+  The last update block number of the relationship.
+  """
+  updatedAt: Int!
+
+  """
   Indicates whether the relationship is currently active.
   """
   isActive: Boolean!
 }
 
 """
-ServiceDeployment entity: Tracks deployed service instances
+Represents a Service Request in the system.
 """
-type ServiceDeployment @entity {
+type ServiceRequest @entity {
   """
-  Unique identifier for the Service Deployment.
+  Unique identifier for the Service Request.
   """
   id: ID!
 
   """
-  The Blueprint associated with this Service Deployment.
+  The owner of the Service Request.
+  """
+  owner: Account!
+
+  """
+  The blueprint associated with this Service Request.
   """
   blueprint: Blueprint!
 
   """
-  The Operator associated with this Service Deployment.
+  List of asset IDs associated with this Service Request.
   """
-  operator: Operator!
+  assetIds: [BigInt!]!
 
   """
-  The block number when the Service Deployment was deployed.
+  The Service associated with this Service Request.
   """
-  deployedAt: Int!
+  service: Service @derivedFrom(field: "serviceRequest")
 
   """
-  The status of the Service Deployment.
+  The creation block number of the Service Request.
   """
-  status: ServiceStatus!
+  createdAt: Int!
 }
 
 """
-Job entity: Represents jobs defined in blueprints
+Represents a relationship between a Service Request and an Operator.
 """
-type Job @entity {
+type ServiceRequestOperator @entity {
   """
-  Unique identifier for the Job. Composite key: Blueprint ID + job index
+  Unique identifier for the relationship. Composite key: Service Request ID + Operator ID
   """
   id: ID!
 
   """
-  The Blueprint associated with this Job.
+  The Service Request associated with this relationship.
+  """
+  serviceRequest: ServiceRequest!
+
+  """
+  The Operator associated with this relationship.
+  """
+  operator: Operator!
+
+  """
+  The approval block number.
+  """
+  approvedAt: Int
+
+  """
+  The rejection block number.
+  """
+  rejectedAt: Int
+
+  """
+  The creation block number of the relationship.
+  """
+  createdAt: Int!
+}
+
+"""
+Represents a Service in the system.
+"""
+type Service @entity {
+  """
+  Unique identifier for the Service.
+  """
+  id: ID!
+
+  """
+  The Service Request associated with this Service.
+  """
+  serviceRequest: ServiceRequest!
+
+  """
+  The owner of the Service.
+  """
+  owner: Account!
+
+  """
+  List of asset IDs associated with this Service.
+  """
+  assetIds: [BigInt!]!
+
+  """
+  The blueprint associated with this Service.
   """
   blueprint: Blueprint!
 
   """
-  The name of the Job.
+  List of job calls associated with this Service.
   """
-  name: String!
+  jobCalls: [JobCall!]! @derivedFrom(field: "service")
 
   """
-  The description of the Job.
+  List of job results associated with this Service.
   """
-  description: String
+  jobResults: [JobResult!]! @derivedFrom(field: "service")
 
   """
-  List of executions for this Job.
+  The creation block number of the Service.
   """
-  executions: [JobExecution!]! @derivedFrom(field: "job")
+  createdAt: Int!
+
+  """
+  The block number when the Service was terminated.
+  """
+  terminatedAt: Int
 }
 
 """
-JobExecution entity: Tracks job executions
+Represents a relationship between a Service and an Operator.
 """
-type JobExecution @entity {
+type ServiceOperator @entity {
   """
-  Unique identifier for the Job Execution.
+  Unique identifier for the relationship. Composite key: Service ID + Operator ID
   """
   id: ID!
 
   """
-  The Job associated with this execution.
+  The Service associated with this relationship.
   """
-  job: Job!
+  service: Service!
 
   """
-  The Operator associated with this execution.
+  The Operator associated with this relationship.
   """
   operator: Operator!
 
   """
-  The Service Deployment associated with this execution.
+  The creation block number of the relationship.
   """
-  service: ServiceDeployment!
-
-  """
-  The block number when the Job Execution was executed.
-  """
-  executedAt: Int!
-
-  """
-  The status of the Job Execution.
-  """
-  status: JobStatus!
+  createdAt: Int!
 }
 
 """
-Blueprint status enum
+Represents a Job Call in the system.
 """
-enum BlueprintStatus {
+type JobCall @entity {
   """
-  The Blueprint is a draft.
+  Unique identifier for the Job Call.
   """
-  DRAFT
+  id: ID!
 
   """
-  The Blueprint is published.
+  The caller of the Job.
   """
-  PUBLISHED
+  caller: Account!
 
   """
-  The Blueprint is deprecated.
+  The Service associated with this Job Call.
   """
-  DEPRECATED
+  service: Service!
+
+  """
+  The job ID of the Job Call.
+  """
+  jobId: Int!
+
+  """
+  The job result associated with this Job Call.
+  """
+  jobResult: JobResult @derivedFrom(field: "jobCall")
+
+  """
+  The creation block number of the Job Call.
+  """
+  createdAt: Int!
 }
 
 """
-Service status enum
+Represents a Job Result in the system.
 """
-enum ServiceStatus {
+type JobResult @entity {
   """
-  The Service is pending.
+  Unique identifier for the Job Result. Composite key: Job Call ID + Service ID
   """
-  PENDING
+  id: ID!
 
   """
-  The Service is active.
+  The Job Call associated with this Job Result.
   """
-  ACTIVE
+  jobCall: JobCall!
 
   """
-  The Service is suspended.
+  The Service associated with this Job Result.
   """
-  SUSPENDED
+  service: Service!
 
   """
-  The Service is terminated.
+  The operator that executed the Job.
   """
-  TERMINATED
-}
-
-"""
-Job status enum
-"""
-enum JobStatus {
-  """
-  The Job is pending.
-  """
-  PENDING
+  operator: Operator!
 
   """
-  The Job is completed.
+  The creation block number of the Job Result.
   """
-  COMPLETED
-
-  """
-  The Job is failed.
-  """
-  FAILED
-
-  """
-  The Job is disputed.
-  """
-  DISPUTED
+  createdAt: Int!
 }
