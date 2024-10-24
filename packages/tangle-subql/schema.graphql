@@ -728,7 +728,7 @@ Represents a change in the stake of a Lst Pool member.
 """
 type MemberStakeChange @entity {
   """
-  Unique identifier for the stake change. Composite key: LstPool ID + member ID + block number
+  Unique identifier for the stake change. Composite key: LstPool ID + account ID + block number
   """
   id: ID!
 
