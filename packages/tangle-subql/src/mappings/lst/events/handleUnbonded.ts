@@ -27,8 +27,8 @@ export default async function handleUnbonded(
   poolMember.currentStake -= balance.toBigInt();
 
   const stakeChange = MemberStakeChange.create({
-    id: `${poolId.toString()}-${member.toString()}-${blockNumber}`,
-    memberId: member.toString(),
+    id: `${poolMember.id}-${blockNumber}`,
+    memberId: poolMember.id,
     amount: -balance.toBigInt(),
     blockNumber,
   });
