@@ -19,6 +19,7 @@ export default async function handleBonded(
   const blockNumber = event.block.block.header.number.toNumber();
 
   const account = await ensureAccount(member.toString(), blockNumber);
+  account.lastUpdateAt = blockNumber;
 
   const pool =
     (await LstPool.get(poolId.toString())) ??
@@ -62,6 +63,6 @@ export default async function handleBonded(
       blockNumber,
     });
 
-    await Promise.all([poolMember.save(), stakeChange.save()]);
+    await Promise.all([account.save(), poolMember.save(), stakeChange.save()]);
   }
 }
