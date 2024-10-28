@@ -3,6 +3,7 @@ import assert from 'assert';
 import { Operator, OperatorStatus } from '../../../../types';
 import createOperatorStatusChange from '../../../../utils/createOperatorStatusChange';
 import getExtrinsicInfo from '../../../../utils/getExtrinsicInfo';
+import getAndAssertAccount from '../../../../utils/getAndAssertAccount';
 
 export default async function handleGoOnline(extrinsic: SubstrateExtrinsic) {
   const { signer, blockNumber } = getExtrinsicInfo(extrinsic);
@@ -14,6 +15,8 @@ export default async function handleGoOnline(extrinsic: SubstrateExtrinsic) {
   operator.currentStatus = OperatorStatus.ACTIVE;
   operator.lastUpdateAt = blockNumber;
 
+  const operatorAccount = await getAndAssertAccount(operator.id, blockNumber);
+
   const statusChange = createOperatorStatusChange(
     signer,
     blockNumber,
@@ -21,5 +24,9 @@ export default async function handleGoOnline(extrinsic: SubstrateExtrinsic) {
     OperatorStatus.ACTIVE,
   );
 
-  await Promise.all([operator.save(), statusChange.save()]);
+  await Promise.all([
+    operator.save(),
+    operatorAccount.save(),
+    statusChange.save(),
+  ]);
 }

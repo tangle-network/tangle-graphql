@@ -9,6 +9,7 @@ import {
   Operator,
 } from '../../../../types';
 import getExtrinsicInfo from '../../../../utils/getExtrinsicInfo';
+import getAndAssertAccount from '../../../../utils/getAndAssertAccount';
 
 export default async function handleDelegate(
   extrinsic: SubstrateExtrinsic<
@@ -16,17 +17,27 @@ export default async function handleDelegate(
   >,
 ) {
   const { signer, blockNumber } = getExtrinsicInfo(extrinsic);
-  const [operatorAccount, assetId, amount] = extrinsic.extrinsic.args;
+  const [operatorAccountId, assetId, amount] = extrinsic.extrinsic.args;
 
   const delegator = await Delegator.get(signer);
   assert(delegator, `Delegator with ID ${signer} not found`);
-
   delegator.lastUpdateAt = blockNumber;
 
-  const operator = await Operator.get(operatorAccount.toString());
-  assert(operator, `Operator with ID ${operatorAccount.toString()} not found`);
+  const delegatorAccount = await getAndAssertAccount(
+    delegator.accountId,
+    blockNumber,
+  );
 
-  const delegationId = `${delegator.id}-${operator.id}-${assetId.toString()}`;
+  const operator = await Operator.get(operatorAccountId.toString());
+  assert(
+    operator,
+    `Operator with ID ${operatorAccountId.toString()} not found`,
+  );
+  operator.lastUpdateAt = blockNumber;
+
+  const operatorAccount = await getAndAssertAccount(operator.id, blockNumber);
+
+  const delegationId = `${delegatorAccount.id}-${operatorAccount.id}-${assetId.toString()}`;
   let delegation = await Delegation.get(delegationId);
 
   if (delegation === undefined) {
@@ -49,5 +60,12 @@ export default async function handleDelegate(
     blockNumber,
   });
 
-  await Promise.all([delegator.save(), delegation.save(), history.save()]);
+  await Promise.all([
+    delegator.save(),
+    delegatorAccount.save(),
+    operator.save(),
+    operatorAccount.save(),
+    delegation.save(),
+    history.save(),
+  ]);
 }
