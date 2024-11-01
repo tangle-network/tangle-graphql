@@ -998,7 +998,7 @@ Represents a Job Result in the system.
 """
 type JobResult @entity {
   """
-  Unique identifier for the Job Result. Composite key: Job Call ID + Service ID
+  Unique identifier for the Job Result. Composite key: Service ID + Job Call ID
   """
   id: ID!
 
