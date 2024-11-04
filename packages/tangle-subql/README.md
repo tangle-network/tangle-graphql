@@ -51,17 +51,19 @@ For this project, you can try to query with the following GraphQL code to get a 
 ```graphql
 {
   query {
-    transfers {
+    operators {
       nodes {
         id
-        amount
-        blockNumber
-        date
-        from {
-          id
-        }
-        to {
-          id
+        currentStake
+        scheduledUnstakeAmount
+        joinedAt
+        lastUpdatedAt
+        statusHistory {
+          nodes {
+            id
+            status
+            blockNumber
+          }
         }
       }
     }
