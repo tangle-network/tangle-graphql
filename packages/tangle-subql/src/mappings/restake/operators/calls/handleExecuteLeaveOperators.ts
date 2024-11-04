@@ -7,6 +7,7 @@ import {
   OperatorStatus,
 } from '../../../../types';
 import createOperatorStatusChange from '../../../../utils/createOperatorStatusChange';
+import getAndAssertAccount from '../../../../utils/getAndAssertAccount';
 import getExtrinsicInfo from '../../../../utils/getExtrinsicInfo';
 
 export default async function handleExecuteLeaveOperators(
@@ -20,6 +21,8 @@ export default async function handleExecuteLeaveOperators(
 
   operator.currentStatus = OperatorStatus.OFFLINE;
   operator.lastUpdateAt = blockNumber;
+
+  const operatorAccount = await getAndAssertAccount(operator.id, blockNumber);
 
   const statusChange = createOperatorStatusChange(
     signer,
@@ -36,5 +39,10 @@ export default async function handleExecuteLeaveOperators(
     operatorId: signer,
   });
 
-  await Promise.all([operator.save(), statusChange.save(), bondChange.save()]);
+  await Promise.all([
+    operator.save(),
+    operatorAccount.save(),
+    statusChange.save(),
+    bondChange.save(),
+  ]);
 }

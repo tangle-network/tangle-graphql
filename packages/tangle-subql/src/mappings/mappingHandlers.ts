@@ -165,3 +165,14 @@ export async function handleLstCreated(event: SubstrateEvent): Promise<void> {
     event as SubstrateEvent<[depositor: AccountId32, poolId: u32]>,
   );
 }
+
+export { default as handleBlueprintCreated } from './services/events/handleBlueprintCreated';
+export { default as handleJobCalled } from './services/events/handleJobCalled';
+export { default as handleJobResultSubmitted } from './services/events/handleJobResultSubmitted';
+export { default as handleRegistered } from './services/events/handleRegistered';
+export { default as handleServiceInitiated } from './services/events/handleServiceInitiated';
+export { default as handleServiceRequestApproved } from './services/events/handleServiceRequestApproved';
+export { default as handleServiceRequested } from './services/events/handleServiceRequested';
+export { default as handleServiceRequestRejected } from './services/events/handleServiceRequestRejected';
+export { default as handleServiceTerminated } from './services/events/handleServiceTerminated';
+export { default as handleUnregistered } from './services/events/handleUnregistered';

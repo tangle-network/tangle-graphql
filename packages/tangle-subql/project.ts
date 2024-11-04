@@ -105,6 +105,86 @@ const project: SubstrateProject = {
               method: 'Created',
             },
           },
+          {
+            kind: SubstrateHandlerKind.Event,
+            handler: 'handleBlueprintCreated',
+            filter: {
+              module: 'services',
+              method: 'BlueprintCreated',
+            },
+          },
+          {
+            kind: SubstrateHandlerKind.Event,
+            handler: 'handleJobCalled',
+            filter: {
+              module: 'services',
+              method: 'JobCalled',
+            },
+          },
+          {
+            kind: SubstrateHandlerKind.Event,
+            handler: 'handleJobResultSubmitted',
+            filter: {
+              module: 'services',
+              method: 'JobResultSubmitted',
+            },
+          },
+          {
+            kind: SubstrateHandlerKind.Event,
+            handler: 'handleRegistered',
+            filter: {
+              module: 'services',
+              method: 'Registered',
+            },
+          },
+          {
+            kind: SubstrateHandlerKind.Event,
+            handler: 'handleServiceInitiated',
+            filter: {
+              module: 'services',
+              method: 'ServiceInitiated',
+            },
+          },
+          {
+            kind: SubstrateHandlerKind.Event,
+            handler: 'handleServiceRequestApproved',
+            filter: {
+              module: 'services',
+              method: 'ServiceRequestApproved',
+            },
+          },
+          {
+            kind: SubstrateHandlerKind.Event,
+            handler: 'handleServiceRequested',
+            filter: {
+              module: 'services',
+              method: 'ServiceRequested',
+            },
+          },
+          {
+            kind: SubstrateHandlerKind.Event,
+            handler: 'handleServiceRequestRejected',
+            filter: {
+              module: 'services',
+              method: 'ServiceRequestRejected',
+            },
+          },
+          {
+            kind: SubstrateHandlerKind.Event,
+            handler: 'handleServiceTerminated',
+            filter: {
+              module: 'services',
+              method: 'ServiceTerminated',
+            },
+          },
+          {
+            kind: SubstrateHandlerKind.Event,
+            handler: 'handleUnregistered',
+            filter: {
+              module: 'services',
+              method: 'Unregistered',
+            },
+          },
         ],
       },
     },

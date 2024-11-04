@@ -8,6 +8,7 @@ import {
   WithdrawRequestHistory,
   WithdrawRequestStatus,
 } from '../../../../types';
+import getAndAssertAccount from '../../../../utils/getAndAssertAccount';
 import getExtrinsicInfo from '../../../../utils/getExtrinsicInfo';
 
 export default async function handleCancelWithdraw(
@@ -18,8 +19,9 @@ export default async function handleCancelWithdraw(
 
   const delegator = await Delegator.get(signer);
   assert(delegator, `Delegator with ID ${signer} not found`);
-
   delegator.lastUpdateAt = blockNumber;
+
+  const account = await getAndAssertAccount(delegator.accountId, blockNumber);
 
   const depositId = `${delegator.id}-${assetId.toString()}`;
   const deposit = await Deposit.get(depositId);
@@ -49,6 +51,7 @@ export default async function handleCancelWithdraw(
   }
 
   await Promise.all([
+    account.save(),
     delegator.save(),
     scheduledRequest.save(),
     requestHistory.save(),

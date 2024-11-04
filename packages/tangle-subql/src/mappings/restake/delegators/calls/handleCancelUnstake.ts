@@ -9,6 +9,7 @@ import {
   UnstakeRequestHistory,
   UnstakeRequestStatus,
 } from '../../../../types';
+import getAndAssertAccount from '../../../../utils/getAndAssertAccount';
 import getExtrinsicInfo from '../../../../utils/getExtrinsicInfo';
 
 export default async function handleCancelUnstake(
@@ -17,14 +18,20 @@ export default async function handleCancelUnstake(
   >,
 ) {
   const { signer, blockNumber } = getExtrinsicInfo(extrinsic);
-  const [operatorAccount, assetId, amount] = extrinsic.extrinsic.args;
+  const [operator, assetId, amount] = extrinsic.extrinsic.args;
 
   const delegator = await Delegator.get(signer);
   assert(delegator, `Delegator with ID ${signer} not found`);
-
   delegator.lastUpdateAt = blockNumber;
 
-  const delegationId = `${delegator.id}-${operatorAccount.toString()}-${assetId.toString()}`;
+  const account = await getAndAssertAccount(delegator.accountId, blockNumber);
+
+  const operatorAccount = await getAndAssertAccount(
+    operator.toString(),
+    blockNumber,
+  );
+
+  const delegationId = `${account.id}-${operatorAccount.id}-${assetId.toString()}`;
   const delegation = await Delegation.get(delegationId);
   assert(delegation, `Delegation with ID ${delegationId} not found`);
 
@@ -49,6 +56,7 @@ export default async function handleCancelUnstake(
   }
 
   await Promise.all([
+    account.save(),
     delegator.save(),
     unstakeRequest.save(),
     unstakeRequestHistory.save(),

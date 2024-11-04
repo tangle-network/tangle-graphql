@@ -8,6 +8,7 @@ import {
   LstPoolState,
   MemberStakeChange,
 } from '../../../types';
+import ensureAccount from '../../../utils/ensureAccount';
 
 export default async function handleBonded(
   event: SubstrateEvent<
@@ -16,6 +17,9 @@ export default async function handleBonded(
 ) {
   const [member, poolId, bonded, joined] = event.event.data;
   const blockNumber = event.block.block.header.number.toNumber();
+
+  const account = await ensureAccount(member.toString(), blockNumber);
+  account.lastUpdateAt = blockNumber;
 
   const pool =
     (await LstPool.get(poolId.toString())) ??
@@ -29,15 +33,15 @@ export default async function handleBonded(
 
   if (joined.isTrue) {
     const poolMember = LstPoolMember.create({
-      id: `${poolId.toString()}-${member.toString()}`,
+      id: `${poolId.toString()}-${account.id}`,
       lstPoolId: poolId.toString(),
-      memberId: member.toString(),
+      accountId: account.id,
       currentStake: bonded.toBigInt(),
     });
 
     const stakeChange = MemberStakeChange.create({
-      id: `${poolId.toString()}-${member.toString()}-${blockNumber}`,
-      memberId: member.toString(),
+      id: `${poolMember.id}-${blockNumber}`,
+      memberId: poolMember.id,
       amount: bonded.toBigInt(),
       blockNumber,
     });
@@ -45,7 +49,7 @@ export default async function handleBonded(
     await Promise.all([poolMember.save(), stakeChange.save()]);
   } else {
     const poolMember = await LstPoolMember.get(
-      `${poolId.toString()}-${member.toString()}`,
+      `${poolId.toString()}-${account.id}`,
     );
 
     assert(poolMember, 'Pool member not found');
@@ -53,12 +57,12 @@ export default async function handleBonded(
     poolMember.currentStake = bonded.toBigInt();
 
     const stakeChange = MemberStakeChange.create({
-      id: `${poolId.toString()}-${member.toString()}-${blockNumber}`,
-      memberId: member.toString(),
+      id: `${poolMember.id}-${blockNumber}`,
+      memberId: poolMember.id,
       amount: bonded.toBigInt(),
       blockNumber,
     });
 
-    await Promise.all([poolMember.save(), stakeChange.save()]);
+    await Promise.all([account.save(), poolMember.save(), stakeChange.save()]);
   }
 }

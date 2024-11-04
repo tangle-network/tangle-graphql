@@ -7,6 +7,7 @@ import {
   OperatorBondChange,
 } from '../../../../types';
 import getExtrinsicInfo from '../../../../utils/getExtrinsicInfo';
+import getAndAssertAccount from '../../../../utils/getAndAssertAccount';
 
 export default async function handleOperatorBondMore(
   extrinsic: SubstrateExtrinsic<[additionalBond: u128]>,
@@ -21,6 +22,8 @@ export default async function handleOperatorBondMore(
   operator.currentStake += additionalBond.toBigInt();
   operator.lastUpdateAt = blockNumber;
 
+  const operatorAccount = await getAndAssertAccount(operator.id, blockNumber);
+
   const bondChange = OperatorBondChange.create({
     id: `${signer}-${blockNumber}`,
     action: BondChangeAction.INCREASE,
@@ -29,5 +32,9 @@ export default async function handleOperatorBondMore(
     amount: additionalBond.toBigInt(),
   });
 
-  await Promise.all([operator.save(), bondChange.save()]);
+  await Promise.all([
+    operator.save(),
+    operatorAccount.save(),
+    bondChange.save(),
+  ]);
 }

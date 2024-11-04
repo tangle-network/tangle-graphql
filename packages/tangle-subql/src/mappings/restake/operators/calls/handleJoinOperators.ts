@@ -9,6 +9,7 @@ import {
 } from '../../../../types';
 import createOperatorStatusChange from '../../../../utils/createOperatorStatusChange';
 import getExtrinsicInfo from '../../../../utils/getExtrinsicInfo';
+import ensureAccount from '../../../../utils/ensureAccount';
 
 export default async function handleJoinOperators(
   extrinsic: SubstrateExtrinsic<[bondAmount: u128]>,
@@ -42,14 +43,20 @@ async function createOrUpdateOperator(
   bondAmount: bigint,
   existingOperator?: Operator,
 ) {
+  const account = await ensureAccount(signer, blockNumber);
+
   const operator =
     existingOperator ??
     Operator.create({
       id: signer,
+      accountId: account.id,
       currentStake: bondAmount,
       joinedAt: blockNumber,
       currentStatus: OperatorStatus.ACTIVE,
       lastUpdateAt: blockNumber,
+      totalBlueprints: 0,
+      totalServiceRequests: 0,
+      totalServices: 0,
     });
 
   // If the operator already exists, update their status to ACTIVE,
@@ -74,7 +81,14 @@ async function createOrUpdateOperator(
     operator.id,
   );
 
-  await Promise.all([operator.save(), statusChange.save(), bondChange.save()]);
+  account.lastUpdateAt = blockNumber;
+
+  await Promise.all([
+    operator.save(),
+    statusChange.save(),
+    bondChange.save(),
+    account.save(),
+  ]);
 
   return operator;
 }

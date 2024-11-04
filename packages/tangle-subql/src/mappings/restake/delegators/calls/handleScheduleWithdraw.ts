@@ -9,6 +9,7 @@ import {
   WithdrawRequestStatus,
 } from '../../../../types';
 import getExtrinsicInfo from '../../../../utils/getExtrinsicInfo';
+import getAndAssertAccount from '../../../../utils/getAndAssertAccount';
 
 export default async function handleScheduleWithdraw(
   extrinsic: SubstrateExtrinsic<[assetId: u128, amount: u128]>,
@@ -18,10 +19,11 @@ export default async function handleScheduleWithdraw(
 
   const delegator = await Delegator.get(signer);
   assert(delegator, `Delegator with ID ${signer} not found`);
-
   delegator.lastUpdateAt = blockNumber;
 
-  const depositId = `${delegator.id}-${assetId.toString()}`;
+  const account = await getAndAssertAccount(delegator.accountId, blockNumber);
+
+  const depositId = `${account.id}-${assetId.toString()}`;
   const deposit = await Deposit.get(depositId);
   assert(deposit, `Deposit with ID ${depositId} not found`);
 
@@ -61,6 +63,7 @@ export default async function handleScheduleWithdraw(
   // Save all entities
   await Promise.all([
     delegator.save(),
+    account.save(),
     request.save(),
     requestHistory.save(),
     deposit.save(),

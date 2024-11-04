@@ -5,6 +5,7 @@ import {
   Operator,
   OperatorBondChange,
 } from '../../../../types';
+import getAndAssertAccount from '../../../../utils/getAndAssertAccount';
 import getExtrinsicInfo from '../../../../utils/getExtrinsicInfo';
 
 export default async function handleCancelOperatorUnstake(
@@ -20,6 +21,8 @@ export default async function handleCancelOperatorUnstake(
   operator.lastUpdateAt = blockNumber;
   operator.scheduledUnstakeAmount = undefined;
 
+  const operatorAccount = await getAndAssertAccount(operator.id, blockNumber);
+
   const bondChange = OperatorBondChange.create({
     id: `${signer}-${blockNumber}`,
     action: BondChangeAction.DECREASE_CANCELLED,
@@ -28,5 +31,9 @@ export default async function handleCancelOperatorUnstake(
     amount: unstakeAmount,
   });
 
-  await Promise.all([operator.save(), bondChange.save()]);
+  await Promise.all([
+    operator.save(),
+    operatorAccount.save(),
+    bondChange.save(),
+  ]);
 }

@@ -3,6 +3,61 @@
 # https://academy.subquery.network/build/graphql.html#indexing-by-non-primary-key-field
 
 """
+Represents an Account in the system.
+"""
+type Account @entity {
+  """
+  Account's account ID, serves as the unique identifier.
+  """
+  id: ID!
+
+  """
+  The Operator associated with this account.
+  """
+  operator: Operator @derivedFrom(field: "account")
+
+  """
+  The Delegator associated with this account.
+  """
+  delegator: Delegator @derivedFrom(field: "account")
+
+  """
+  List of Lst Pool Members associated with this account.
+  """
+  lstPoolMembers: [LstPoolMember!]! @derivedFrom(field: "account")
+
+  """
+  List of Blueprints owned by this account.
+  """
+  blueprints: [Blueprint!]! @derivedFrom(field: "owner")
+
+  """
+  List of Service Requests owned by this account.
+  """
+  serviceRequests: [ServiceRequest!]! @derivedFrom(field: "owner")
+
+  """
+  List of Services owned by this account.
+  """
+  services: [Service!]! @derivedFrom(field: "owner")
+
+  """
+  List of Job calls made by this account.
+  """
+  jobCalls: [JobCall!]! @derivedFrom(field: "caller")
+
+  """
+  The block number when the account was created.
+  """
+  createdAt: Int!
+
+  """
+  The block number of the last update to the account's information.
+  """
+  lastUpdateAt: Int!
+}
+
+"""
 Represents an Operator in the system.
 """
 type Operator @entity {
@@ -10,6 +65,11 @@ type Operator @entity {
   Operator's account ID, serves as the unique identifier.
   """
   id: ID!
+
+  """
+  The account associated with this Operator.
+  """
+  account: Account!
 
   """
   Current status of the Operator (ACTIVE, LEAVING, or OFFLINE).
@@ -51,6 +111,26 @@ type Operator @entity {
   List of delegations made to this Operator.
   """
   delegations: [Delegation!] @derivedFrom(field: "operator")
+
+  """
+  Total number of Blueprints registered by this Operator.
+  """
+  totalBlueprints: Int!
+
+  """
+  Total number of Service Requests requested by this Operator.
+  """
+  totalServiceRequests: Int!
+
+  """
+  Total number of Services operated by this Operator.
+  """
+  totalServices: Int!
+
+  """
+  List of job results executed by this Operator.
+  """
+  jobResults: [JobResult!]! @derivedFrom(field: "operator")
 }
 
 """
@@ -161,6 +241,11 @@ type Delegator @entity {
   Delegator's account ID, serves as the unique identifier.
   """
   id: ID!
+
+  """
+  The account associated with this Delegator.
+  """
+  account: Account!
 
   """
   List of deposits made by the Delegator.
@@ -623,9 +708,9 @@ type LstPoolMember @entity {
   lstPool: LstPool!
 
   """
-  The account ID of the member.
+  The account associated with this Lst Pool Member.
   """
-  memberId: ID!
+  account: Account!
 
   """
   The current stake amount of the member in the Lst Pool.
@@ -643,7 +728,7 @@ Represents a change in the stake of a Lst Pool member.
 """
 type MemberStakeChange @entity {
   """
-  Unique identifier for the stake change. Composite key: LstPool ID + member ID + block number
+  Unique identifier for the stake change. Composite key: LstPool ID + account ID + block number
   """
   id: ID!
 
@@ -661,4 +746,279 @@ type MemberStakeChange @entity {
   The block number at which the stake change occurred.
   """
   blockNumber: Int!
+}
+
+"""
+Blueprint entity: Represents service blueprints in the system
+"""
+type Blueprint @entity {
+  """
+  Unique identifier for the Blueprint.
+  """
+  id: ID!
+
+  """
+  The owner of the Blueprint.
+  """
+  owner: Account!
+
+  """
+  The creation block number of the Blueprint.
+  """
+  createdAt: Int!
+
+  """
+  List of Service Requests associated with this Blueprint.
+  """
+  serviceRequests: [ServiceRequest!]! @derivedFrom(field: "blueprint")
+
+  """
+  List of Services associated with this Blueprint.
+  """
+  services: [Service!]! @derivedFrom(field: "blueprint")
+}
+
+"""
+BlueprintOperator entity: Represents the relationship between blueprints and operators
+"""
+type BlueprintOperator @entity {
+  """
+  Unique identifier for the relationship. Composite key: Blueprint ID + Operator ID
+  """
+  id: ID!
+
+  """
+  The Blueprint associated with this relationship.
+  """
+  blueprint: Blueprint!
+
+  """
+  The Operator associated with this relationship.
+  """
+  operator: Operator!
+
+  """
+  The registration block number of the relationship.
+  """
+  registeredAt: Int!
+
+  """
+  The last update block number of the relationship.
+  """
+  updatedAt: Int!
+
+  """
+  Indicates whether the relationship is currently active.
+  """
+  isActive: Boolean!
+}
+
+"""
+Represents a Service Request in the system.
+"""
+type ServiceRequest @entity {
+  """
+  Unique identifier for the Service Request.
+  """
+  id: ID!
+
+  """
+  The owner of the Service Request.
+  """
+  owner: Account!
+
+  """
+  The blueprint associated with this Service Request.
+  """
+  blueprint: Blueprint!
+
+  """
+  List of asset IDs associated with this Service Request.
+  """
+  assetIds: [BigInt!]!
+
+  """
+  The Service associated with this Service Request.
+  """
+  service: Service @derivedFrom(field: "serviceRequest")
+
+  """
+  The creation block number of the Service Request.
+  """
+  createdAt: Int!
+}
+
+"""
+Represents a relationship between a Service Request and an Operator.
+"""
+type ServiceRequestOperator @entity {
+  """
+  Unique identifier for the relationship. Composite key: Service Request ID + Operator ID
+  """
+  id: ID!
+
+  """
+  The Service Request associated with this relationship.
+  """
+  serviceRequest: ServiceRequest!
+
+  """
+  The Operator associated with this relationship.
+  """
+  operator: Operator!
+
+  """
+  The approval block number.
+  """
+  approvedAt: Int
+
+  """
+  The rejection block number.
+  """
+  rejectedAt: Int
+
+  """
+  The creation block number of the relationship.
+  """
+  createdAt: Int!
+}
+
+"""
+Represents a Service in the system.
+"""
+type Service @entity {
+  """
+  Unique identifier for the Service.
+  """
+  id: ID!
+
+  """
+  The Service Request associated with this Service.
+  """
+  serviceRequest: ServiceRequest!
+
+  """
+  The owner of the Service.
+  """
+  owner: Account!
+
+  """
+  List of asset IDs associated with this Service.
+  """
+  assetIds: [BigInt!]!
+
+  """
+  The blueprint associated with this Service.
+  """
+  blueprint: Blueprint!
+
+  """
+  List of job calls associated with this Service.
+  """
+  jobCalls: [JobCall!]! @derivedFrom(field: "service")
+
+  """
+  List of job results associated with this Service.
+  """
+  jobResults: [JobResult!]! @derivedFrom(field: "service")
+
+  """
+  The creation block number of the Service.
+  """
+  createdAt: Int!
+
+  """
+  The block number when the Service was terminated.
+  """
+  terminatedAt: Int
+}
+
+"""
+Represents a relationship between a Service and an Operator.
+"""
+type ServiceOperator @entity {
+  """
+  Unique identifier for the relationship. Composite key: Service ID + Operator ID
+  """
+  id: ID!
+
+  """
+  The Service associated with this relationship.
+  """
+  service: Service!
+
+  """
+  The Operator associated with this relationship.
+  """
+  operator: Operator!
+
+  """
+  The creation block number of the relationship.
+  """
+  createdAt: Int!
+}
+
+"""
+Represents a Job Call in the system.
+"""
+type JobCall @entity {
+  """
+  Unique identifier for the Job Call.
+  """
+  id: ID!
+
+  """
+  The caller of the Job.
+  """
+  caller: Account!
+
+  """
+  The Service associated with this Job Call.
+  """
+  service: Service!
+
+  """
+  The job ID of the Job Call.
+  """
+  jobId: Int!
+
+  """
+  The job result associated with this Job Call.
+  """
+  jobResult: JobResult @derivedFrom(field: "jobCall")
+
+  """
+  The creation block number of the Job Call.
+  """
+  createdAt: Int!
+}
+
+"""
+Represents a Job Result in the system.
+"""
+type JobResult @entity {
+  """
+  Unique identifier for the Job Result. Composite key: Service ID + Job Call ID
+  """
+  id: ID!
+
+  """
+  The Job Call associated with this Job Result.
+  """
+  jobCall: JobCall!
+
+  """
+  The Service associated with this Job Result.
+  """
+  service: Service!
+
+  """
+  The operator that executed the Job.
+  """
+  operator: Operator!
+
+  """
+  The creation block number of the Job Result.
+  """
+  createdAt: Int!
 }

@@ -2,6 +2,7 @@ import { SubstrateExtrinsic } from '@subql/types';
 import assert from 'assert';
 import { Operator, OperatorStatus } from '../../../../types';
 import createOperatorStatusChange from '../../../../utils/createOperatorStatusChange';
+import getAndAssertAccount from '../../../../utils/getAndAssertAccount';
 import getExtrinsicInfo from '../../../../utils/getExtrinsicInfo';
 
 export default async function handleCancelLeaveOperators(
@@ -16,6 +17,8 @@ export default async function handleCancelLeaveOperators(
   operator.currentStatus = OperatorStatus.ACTIVE;
   operator.lastUpdateAt = blockNumber;
 
+  const operatorAccount = await getAndAssertAccount(operator.id, blockNumber);
+
   const statusChange = createOperatorStatusChange(
     signer,
     blockNumber,
@@ -23,5 +26,9 @@ export default async function handleCancelLeaveOperators(
     OperatorStatus.ACTIVE,
   );
 
-  await Promise.all([operator.save(), statusChange.save()]);
+  await Promise.all([
+    operator.save(),
+    operatorAccount.save(),
+    statusChange.save(),
+  ]);
 }

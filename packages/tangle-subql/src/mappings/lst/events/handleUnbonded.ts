@@ -3,6 +3,7 @@ import { AccountId32 } from '@polkadot/types/interfaces';
 import { SubstrateEvent } from '@subql/types';
 import assert from 'assert';
 import { LstPool, LstPoolMember, MemberStakeChange } from '../../../types';
+import getAndAssertAccount from '../../../utils/getAndAssertAccount';
 
 export default async function handleUnbonded(
   event: SubstrateEvent<
@@ -21,17 +22,23 @@ export default async function handleUnbonded(
   const poolMember = await LstPoolMember.get(
     `${poolId.toString()}-${member.toString()}`,
   );
-
   assert(poolMember, 'Pool member not found');
+
+  const account = await getAndAssertAccount(poolMember.accountId, blockNumber);
 
   poolMember.currentStake -= balance.toBigInt();
 
   const stakeChange = MemberStakeChange.create({
-    id: `${poolId.toString()}-${member.toString()}-${blockNumber}`,
-    memberId: member.toString(),
+    id: `${poolMember.id}-${blockNumber}`,
+    memberId: poolMember.id,
     amount: -balance.toBigInt(),
     blockNumber,
   });
 
-  await Promise.all([pool.save(), poolMember.save(), stakeChange.save()]);
+  await Promise.all([
+    account.save(),
+    pool.save(),
+    poolMember.save(),
+    stakeChange.save(),
+  ]);
 }

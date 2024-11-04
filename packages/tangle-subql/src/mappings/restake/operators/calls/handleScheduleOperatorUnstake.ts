@@ -6,6 +6,7 @@ import {
   Operator,
   OperatorBondChange,
 } from '../../../../types';
+import getAndAssertAccount from '../../../../utils/getAndAssertAccount';
 import getExtrinsicInfo from '../../../../utils/getExtrinsicInfo';
 
 export default async function handleScheduleOperatorUnstake(
@@ -21,6 +22,8 @@ export default async function handleScheduleOperatorUnstake(
   operator.lastUpdateAt = blockNumber;
   operator.scheduledUnstakeAmount = unstakeAmount.toBigInt();
 
+  const operatorAccount = await getAndAssertAccount(operator.id, blockNumber);
+
   const bondChange = OperatorBondChange.create({
     id: `${signer}-${blockNumber}`,
     action: BondChangeAction.DECREASE_SCHEDULED,
@@ -29,5 +32,9 @@ export default async function handleScheduleOperatorUnstake(
     amount: unstakeAmount.toBigInt(),
   });
 
-  await Promise.all([operator.save(), bondChange.save()]);
+  await Promise.all([
+    operator.save(),
+    operatorAccount.save(),
+    bondChange.save(),
+  ]);
 }
